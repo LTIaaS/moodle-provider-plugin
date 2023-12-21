@@ -1,2 +1,7 @@
-# moodle-provider-plugin
-Moodle plugin that makes Moodle an LTI provider tool via LTIAAS
+# Ltiaas - enrol_ltiadv
+
+
+## Settings
+
+- **Ltiaas URL**: Ltiaas Server URL.
+- **API Key**: API Key used to authenticate requests to Ltiaas.
