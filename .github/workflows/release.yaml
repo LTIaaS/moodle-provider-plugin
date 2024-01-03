@@ -1,3 +1,10 @@
+# To make a release:
+# 1. Push changes to main
+# 2. Create a tag and push it
+# ```
+# git tag -a v1.x.x -m "message"
+# git push origin v1.x.x
+# This action will run to package up the plugin
 name: Release
 on:
   push:
