@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Privacy Subsystem implementation for enrol_ltiadv.
+ * Privacy Subsystem implementation for enrol_ltiaas.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @category   privacy
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv\privacy;
+namespace enrol_ltiaas\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
@@ -35,7 +35,7 @@ use core_privacy\local\request\writer;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Privacy Subsystem for enrol_ltiadv.
+ * Privacy Subsystem for enrol_ltiaas.
  *
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -53,14 +53,14 @@ class provider implements
      */
     public static function get_metadata(collection $items) : collection {
         $items->add_database_table(
-            'enrol_ltiadv_users',
+            'enrol_ltiaas_users',
             [
-                'userid' => 'privacy:metadata:enrol_ltiadv_users:userid',
-                'lastgrade' => 'privacy:metadata:enrol_ltiadv_users:lastgrade',
-                'lastaccess' => 'privacy:metadata:enrol_ltiadv_users:lastaccess',
-                'timecreated' => 'privacy:metadata:enrol_ltiadv_users:timecreated'
+                'userid' => 'privacy:metadata:enrol_ltiaas_users:userid',
+                'lastgrade' => 'privacy:metadata:enrol_ltiaas_users:lastgrade',
+                'lastaccess' => 'privacy:metadata:enrol_ltiaas_users:lastaccess',
+                'timecreated' => 'privacy:metadata:enrol_ltiaas_users:timecreated'
             ],
-            'privacy:metadata:enrol_ltiadv_users'
+            'privacy:metadata:enrol_ltiaas_users'
         );
 
         return $items;
@@ -76,8 +76,8 @@ class provider implements
         $contextlist = new contextlist();
 
         $sql = "SELECT DISTINCT ctx.id
-                  FROM {enrol_ltiadv_users} ltiusers
-                  JOIN {enrol_ltiadv_tools} ltitools
+                  FROM {enrol_ltiaas_users} ltiusers
+                  JOIN {enrol_ltiaas_tools} ltitools
                     ON ltiusers.toolid = ltitools.id
                   JOIN {context} ctx
                     ON ctx.id = ltitools.contextid
@@ -101,8 +101,8 @@ class provider implements
         }
 
         $sql = "SELECT ltiusers.userid
-                  FROM {enrol_ltiadv_users} ltiusers
-                  JOIN {enrol_ltiadv_tools} ltitools ON ltiusers.toolid = ltitools.id
+                  FROM {enrol_ltiaas_users} ltiusers
+                  JOIN {enrol_ltiaas_tools} ltitools ON ltiusers.toolid = ltitools.id
                  WHERE ltitools.contextid = :contextid";
         $params = ['contextid' => $context->id];
         $userlist->add_from_sql('userid', $sql, $params);
@@ -125,8 +125,8 @@ class provider implements
         list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
         $sql = "SELECT ltiusers.lastgrade, ltiusers.lastaccess, ltiusers.timecreated, ltitools.contextid
-                  FROM {enrol_ltiadv_users} ltiusers
-                  JOIN {enrol_ltiadv_tools} ltitools
+                  FROM {enrol_ltiaas_users} ltiusers
+                  JOIN {enrol_ltiaas_tools} ltitools
                     ON ltiusers.toolid = ltitools.id
                   JOIN {context} ctx
                     ON ctx.id = ltitools.contextid
@@ -144,7 +144,7 @@ class provider implements
         }, function($contextid, $data) {
             $context = \context::instance_by_id($contextid);
             $finaldata = (object) $data;
-            writer::with_context($context)->export_data(['enrol_ltiadv_users'], $finaldata);
+            writer::with_context($context)->export_data(['enrol_ltiaas_users'], $finaldata);
         });
     }
 
@@ -160,11 +160,11 @@ class provider implements
             return;
         }
 
-        $enrolltitools = $DB->get_fieldset_select('enrol_ltiadv_tools', 'id', 'contextid = :contextid',
+        $enrolltitools = $DB->get_fieldset_select('enrol_ltiaas_tools', 'id', 'contextid = :contextid',
             ['contextid' => $context->id]);
         if (!empty($enrolltitools)) {
             list($sql, $params) = $DB->get_in_or_equal($enrolltitools, SQL_PARAMS_NAMED);
-            $DB->delete_records_select('enrol_ltiadv_users', 'toolid ' . $sql, $params);
+            $DB->delete_records_select('enrol_ltiaas_users', 'toolid ' . $sql, $params);
         }
     }
 
@@ -183,12 +183,12 @@ class provider implements
                 continue;
             }
 
-            $enrolltitools = $DB->get_fieldset_select('enrol_ltiadv_tools', 'id', 'contextid = :contextid',
+            $enrolltitools = $DB->get_fieldset_select('enrol_ltiaas_tools', 'id', 'contextid = :contextid',
                 ['contextid' => $context->id]);
             if (!empty($enrolltitools)) {
                 list($sql, $params) = $DB->get_in_or_equal($enrolltitools, SQL_PARAMS_NAMED);
                 $params = array_merge($params, ['userid' => $userid]);
-                $DB->delete_records_select('enrol_ltiadv_users', "toolid $sql AND userid = :userid", $params);
+                $DB->delete_records_select('enrol_ltiaas_users', "toolid $sql AND userid = :userid", $params);
             }
         }
     }
@@ -207,14 +207,14 @@ class provider implements
             return;
         }
 
-        $enrolltitools = $DB->get_fieldset_select('enrol_ltiadv_tools', 'id', 'contextid = :contextid',
+        $enrolltitools = $DB->get_fieldset_select('enrol_ltiaas_tools', 'id', 'contextid = :contextid',
                 ['contextid' => $context->id]);
         if (!empty($enrolltitools)) {
             list($toolsql, $toolparams) = $DB->get_in_or_equal($enrolltitools, SQL_PARAMS_NAMED);
             $userids = $userlist->get_userids();
             list($usersql, $userparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
             $params = $toolparams + $userparams;
-            $DB->delete_records_select('enrol_ltiadv_users', "toolid $toolsql AND userid $usersql", $params);
+            $DB->delete_records_select('enrol_ltiaas_users', "toolid $toolsql AND userid $usersql", $params);
         }
     }
 

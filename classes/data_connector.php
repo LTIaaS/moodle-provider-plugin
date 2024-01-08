@@ -17,12 +17,12 @@
 /**
  * Extends the IMS Tool provider library data connector for moodle.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv;
+namespace enrol_ltiaas;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -41,7 +41,7 @@ use stdClass;
 /**
  * Extends the IMS Tool provider library data connector for moodle.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -66,7 +66,7 @@ class data_connector extends DataConnector {
      * data_connector constructor.
      */
     public function __construct() {
-        parent::__construct(null, 'enrol_ltiadv_');
+        parent::__construct(null, 'enrol_ltiaas_');
 
         // Set up table names.
         $this->consumertable = $this->dbTableNamePrefix . DataConnector::CONSUMER_TABLE_NAME;
@@ -974,7 +974,7 @@ class data_connector extends DataConnector {
         global $DB;
 
         $consumers = [];
-        $consumerrecords = $DB->get_records('enrol_ltiadv_tool_consumer_map', ['toolid' => $toolid], '', 'consumerid');
+        $consumerrecords = $DB->get_records('enrol_ltiaas_tool_consumer_map', ['toolid' => $toolid], '', 'consumerid');
         foreach ($consumerrecords as $record) {
             $consumers[] = ToolConsumer::fromRecordId($record->consumerid, $this);
         }

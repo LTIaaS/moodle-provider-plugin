@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the backup_enrol_ltiadv_plugin class.
+ * Defines the backup_enrol_ltiaas_plugin class.
  *
- * @package   enrol_ltiadv
+ * @package   enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,11 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Define all the backup steps.
  *
- * @package   enrol_ltiadv
+ * @package   enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_enrol_ltiadv_plugin extends backup_enrol_plugin {
+class backup_enrol_ltiaas_plugin extends backup_enrol_plugin {
 
     /**
      * Defines the other LTI enrolment structures to append.
@@ -59,12 +59,12 @@ class backup_enrol_ltiadv_plugin extends backup_enrol_plugin {
         $users->add_child($user);
 
         // Set sources to populate the data.
-        $tool->set_source_table('enrol_ltiadv_tools',
+        $tool->set_source_table('enrol_ltiaas_tools',
             array('enrolid' => backup::VAR_PARENTID));
 
         // Users are only added only if users included.
         if ($this->task->get_setting_value('users')) {
-            $user->set_source_table('enrol_ltiadv_users', array('toolid' => backup::VAR_PARENTID));
+            $user->set_source_table('enrol_ltiaas_users', array('toolid' => backup::VAR_PARENTID));
         }
     }
 }

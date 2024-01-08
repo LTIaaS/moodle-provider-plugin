@@ -17,24 +17,24 @@
 /**
  * LTI enrolment plugin main library file.
  *
- * @package enrol_ltiadv
- * @copyright 2020 Carlos Costa
+ * @package enrol_ltiaas
+ * @copyright 2024 GatherAct LLC (LTIAAS)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use enrol_ltiadv\data_connector;
-use enrol_ltiadv\helper;
+use enrol_ltiaas\data_connector;
+use enrol_ltiaas\helper;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * LTI enrolment plugin class.
  *
- * @package enrol_ltiadv
+ * @package enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_ltiadv_plugin extends enrol_plugin {
+class enrol_ltiaas_plugin extends enrol_plugin {
 
     /**
      * Return true if we can add a new instance to this course.
@@ -44,7 +44,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
      */
     public function can_add_instance($courseid) {
         $context = context_course::instance($courseid, MUST_EXIST);
-        return has_capability('moodle/course:enrolconfig', $context) && has_capability('enrol/ltiadv:config', $context);
+        return has_capability('moodle/course:enrolconfig', $context) && has_capability('enrol/ltiaas:config', $context);
     }
 
     /**
@@ -55,7 +55,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
      */
     public function can_delete_instance($instance) {
         $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/ltiadv:config', $context);
+        return has_capability('enrol/ltiaas:config', $context);
     }
 
     /**
@@ -66,7 +66,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
      */
     public function can_hide_show_instance($instance) {
         $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/ltiadv:config', $context);
+        return has_capability('enrol/ltiaas:config', $context);
     }
 
     /**
@@ -109,7 +109,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
             $data->$field = $value;
         }
 
-        $DB->insert_record('enrol_ltiadv_tools', $data);
+        $DB->insert_record('enrol_ltiaas_tools', $data);
 
         return $instanceid;
     }
@@ -142,7 +142,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
             $tool->$field = $value;
         }
 
-        return $DB->update_record('enrol_ltiadv_tools', $tool);
+        return $DB->update_record('enrol_ltiaas_tools', $tool);
     }
 
     /**
@@ -155,13 +155,13 @@ class enrol_ltiadv_plugin extends enrol_plugin {
         global $DB;
 
         // Get the tool associated with this instance.
-        $tool = $DB->get_record('enrol_ltiadv_tools', array('enrolid' => $instance->id), 'id', MUST_EXIST);
+        $tool = $DB->get_record('enrol_ltiaas_tools', array('enrolid' => $instance->id), 'id', MUST_EXIST);
 
         // Delete any users associated with this tool.
-        $DB->delete_records('enrol_ltiadv_users', array('toolid' => $tool->id));
+        $DB->delete_records('enrol_ltiaas_users', array('toolid' => $tool->id));
 
         // Delete the lti tool record.
-        $DB->delete_records('enrol_ltiadv_tools', array('id' => $tool->id));
+        $DB->delete_records('enrol_ltiaas_tools', array('id' => $tool->id));
 
         // Time for the parent to do it's thang, yeow.
         parent::delete_instance($instance);
@@ -178,10 +178,10 @@ class enrol_ltiadv_plugin extends enrol_plugin {
         global $DB;
 
         // Get the tool associated with this instance. Note - it may not exist if we have deleted
-        // the tool. This is fine because we have already cleaned the 'enrol_ltiadv_users' table.
-        if ($tool = $DB->get_record('enrol_ltiadv_tools', array('enrolid' => $instance->id), 'id')) {
+        // the tool. This is fine because we have already cleaned the 'enrol_ltiaas_users' table.
+        if ($tool = $DB->get_record('enrol_ltiaas_tools', array('enrolid' => $instance->id), 'id')) {
             // Need to remove the user from the users table.
-            $DB->delete_records('enrol_ltiadv_users', array('userid' => $userid, 'toolid' => $tool->id));
+            $DB->delete_records('enrol_ltiaas_users', array('userid' => $userid, 'toolid' => $tool->id));
         }
 
         parent::unenrol_user($instance, $userid);
@@ -204,9 +204,9 @@ class enrol_ltiadv_plugin extends enrol_plugin {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'server');
 
         $descattribs = array('size' => '80', 'maxlength' => '255');
-        $mform->addElement('text', 'customdescription', get_string('customdescription', 'enrol_ltiadv'), $descattribs);
+        $mform->addElement('text', 'customdescription', get_string('customdescription', 'enrol_ltiaas'), $descattribs);
         $mform->setType('customdescription', PARAM_TEXT);
-        $mform->addHelpButton('customdescription', 'customdescription', 'enrol_ltiadv');
+        $mform->addHelpButton('customdescription', 'customdescription', 'enrol_ltiaas');
         $mform->addRule('customdescription', get_string('maximumchars', '', 255), 'maxlength', 255, 'server');
 
         $tools = array();
@@ -217,43 +217,43 @@ class enrol_ltiadv_plugin extends enrol_plugin {
             $tools[$mod->context->id] = format_string($mod->name);
         }
 
-        $mform->addElement('select', 'contextid', get_string('tooltobeprovided', 'enrol_ltiadv'), $tools);
+        $mform->addElement('select', 'contextid', get_string('tooltobeprovided', 'enrol_ltiaas'), $tools);
         $mform->setDefault('contextid', $context->id);
 
-        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_ltiadv'),
+        $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_ltiaas'),
             array('optional' => true, 'defaultunit' => DAYSECS));
         $mform->setDefault('enrolperiod', 0);
-        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_ltiadv');
+        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_ltiaas');
 
-        $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_ltiadv'),
+        $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_ltiaas'),
             array('optional' => true));
         $mform->setDefault('enrolstartdate', 0);
-        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_ltiadv');
+        $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_ltiaas');
 
-        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_ltiadv'),
+        $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_ltiaas'),
             array('optional' => true));
         $mform->setDefault('enrolenddate', 0);
-        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_ltiadv');
+        $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_ltiaas');
 
-        $mform->addElement('text', 'maxenrolled', get_string('maxenrolled', 'enrol_ltiadv'));
+        $mform->addElement('text', 'maxenrolled', get_string('maxenrolled', 'enrol_ltiaas'));
         $mform->setDefault('maxenrolled', 0);
-        $mform->addHelpButton('maxenrolled', 'maxenrolled', 'enrol_ltiadv');
+        $mform->addHelpButton('maxenrolled', 'maxenrolled', 'enrol_ltiaas');
         $mform->setType('maxenrolled', PARAM_INT);
 
         $assignableroles = get_assignable_roles($context);
 
-        $mform->addElement('select', 'roleinstructor', get_string('roleinstructor', 'enrol_ltiadv'), $assignableroles);
+        $mform->addElement('select', 'roleinstructor', get_string('roleinstructor', 'enrol_ltiaas'), $assignableroles);
         $mform->setDefault('roleinstructor', '3');
-        $mform->addHelpButton('roleinstructor', 'roleinstructor', 'enrol_ltiadv');
+        $mform->addHelpButton('roleinstructor', 'roleinstructor', 'enrol_ltiaas');
 
-        $mform->addElement('select', 'rolelearner', get_string('rolelearner', 'enrol_ltiadv'), $assignableroles);
+        $mform->addElement('select', 'rolelearner', get_string('rolelearner', 'enrol_ltiaas'), $assignableroles);
         $mform->setDefault('rolelearner', '5');
-        $mform->addHelpButton('rolelearner', 'rolelearner', 'enrol_ltiadv');
+        $mform->addHelpButton('rolelearner', 'rolelearner', 'enrol_ltiaas');
 
-        $mform->addElement('header', 'defaultheader', get_string('userdefaultvalues', 'enrol_ltiadv'));
+        $mform->addElement('header', 'defaultheader', get_string('userdefaultvalues', 'enrol_ltiaas'));
         $mform->setExpanded('defaultheader');
 
-        $emaildisplay = get_config('enrol_ltiadv', 'emaildisplay');
+        $emaildisplay = get_config('enrol_ltiaas', 'emaildisplay');
         $choices = array(
             0 => get_string('emaildisplayno'),
             1 => get_string('emaildisplayyes'),
@@ -263,26 +263,26 @@ class enrol_ltiadv_plugin extends enrol_plugin {
         $mform->setDefault('maildisplay', $emaildisplay);
         $mform->addHelpButton('maildisplay', 'emaildisplay');
 
-        $lang = get_config('enrol_ltiadv', 'lang');
+        $lang = get_config('enrol_ltiaas', 'lang');
         $mform->addElement('select', 'lang', get_string('preferredlanguage'), get_string_manager()->get_list_of_translations());
         $mform->setDefault('lang', $lang);
 
-        $mform->addElement('header', 'remotesystem', get_string('remotesystem', 'enrol_ltiadv'));
+        $mform->addElement('header', 'remotesystem', get_string('remotesystem', 'enrol_ltiaas'));
         $mform->setExpanded('remotesystem');
 
-        $mform->addElement('selectyesno', 'gradesync', get_string('gradesync', 'enrol_ltiadv'));
+        $mform->addElement('selectyesno', 'gradesync', get_string('gradesync', 'enrol_ltiaas'));
         $mform->setDefault('gradesync', 1);
-        $mform->addHelpButton('gradesync', 'gradesync', 'enrol_ltiadv');
+        $mform->addHelpButton('gradesync', 'gradesync', 'enrol_ltiaas');
 
-        $mform->addElement('selectyesno', 'gradesynccompletion', get_string('requirecompletion', 'enrol_ltiadv'));
+        $mform->addElement('selectyesno', 'gradesynccompletion', get_string('requirecompletion', 'enrol_ltiaas'));
         $mform->setDefault('gradesynccompletion', 0);
         $mform->disabledIf('gradesynccompletion', 'gradesync', 0);
 
 
         // Check if we are editing an instance.
         if (!empty($instance->id)) {
-            // Get the details from the enrol_ltiadv_tools table.
-            $ltitool = $DB->get_record('enrol_ltiadv_tools', array('enrolid' => $instance->id), '*', MUST_EXIST);
+            // Get the details from the enrol_ltiaas_tools table.
+            $ltitool = $DB->get_record('enrol_ltiaas_tools', array('enrolid' => $instance->id), '*', MUST_EXIST);
 
             $mform->addElement('hidden', 'toolid');
             $mform->setType('toolid', PARAM_INT);
@@ -309,7 +309,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
         $errors = array();
 
         if (!empty($data['enrolenddate']) && $data['enrolenddate'] < $data['enrolstartdate']) {
-            $errors['enrolenddate'] = get_string('enrolenddateerror', 'enrol_ltiadv');
+            $errors['enrolenddate'] = get_string('enrolenddateerror', 'enrol_ltiaas');
         }
 
         if (!empty($data['requirecompletion'])) {
@@ -322,7 +322,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
             }
 
             if (!$completion->is_enabled($cm)) {
-                $errors['requirecompletion'] = get_string('errorcompletionenabled', 'enrol_ltiadv');
+                $errors['requirecompletion'] = get_string('errorcompletionenabled', 'enrol_ltiaas');
             }
         }
 
@@ -338,7 +338,7 @@ class enrol_ltiadv_plugin extends enrol_plugin {
      * @param int $oldid
      */
     public function restore_instance(restore_enrolments_structure_step $step, stdClass $data, $course, $oldid) {
-        // We want to call the parent because we do not want to add an enrol_ltiadv_tools row
+        // We want to call the parent because we do not want to add an enrol_ltiaas_tools row
         // as that is done as part of the restore process.
         $instanceid = parent::add_instance($course, (array)$data);
         $step->set_mapping('enrol', $oldid, $instanceid);
@@ -352,14 +352,14 @@ class enrol_ltiadv_plugin extends enrol_plugin {
  * @param stdClass $course The course
  * @param stdclass $context Course context
  */
-function enrol_ltiadv_extend_navigation_course($navigation, $course, $context) {
+function enrol_ltiaas_extend_navigation_course($navigation, $course, $context) {
     // Check that the LTI plugin is enabled.
-    if (enrol_is_enabled('ltiadv')) {
+    if (enrol_is_enabled('ltiaas')) {
         // Check that they can add an instance.
-        $ltiplugin = enrol_get_plugin('ltiadv');
+        $ltiplugin = enrol_get_plugin('ltiaas');
         if ($ltiplugin->can_add_instance($course->id)) {
-            $url = new moodle_url('/enrol/ltiadv/index.php', array('courseid' => $course->id));
-            $settingsnode = navigation_node::create(get_string('sharedexternaltools', 'enrol_ltiadv'), $url,
+            $url = new moodle_url('/enrol/ltiaas/index.php', array('courseid' => $course->id));
+            $settingsnode = navigation_node::create(get_string('sharedexternaltools', 'enrol_ltiaas'), $url,
                 navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
 
             $navigation->add_node($settingsnode);

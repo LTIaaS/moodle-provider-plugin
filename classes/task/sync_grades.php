@@ -17,17 +17,17 @@
 /**
  * Handles synchronising grades for the enrolment LTI.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv\task;
+namespace enrol_ltiaas\task;
 
 /**
  * Task for synchronising grades for the enrolment LTI.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -39,7 +39,7 @@ class sync_grades extends \core\task\scheduled_task {
      * @return string
      */
     public function get_name() {
-        return get_string('tasksyncgrades', 'enrol_ltiadv');
+        return get_string('tasksyncgrades', 'enrol_ltiaas');
     }
 
     /**
@@ -61,13 +61,13 @@ class sync_grades extends \core\task\scheduled_task {
 
         // Check if the enrolment plugin is disabled - isn't really necessary as the task should not run if
         // the plugin is disabled, but there is no harm in making sure core hasn't done something wrong.
-        if (!enrol_is_enabled('ltiadv')) {
-            mtrace('Skipping task - ' . get_string('enrolisdisabled', 'enrol_ltiadv'));
+        if (!enrol_is_enabled('ltiaas')) {
+            mtrace('Skipping task - ' . get_string('enrolisdisabled', 'enrol_ltiaas'));
             return true;
         }
 
         // Get all the enabled tools.
-        if ($tools = \enrol_ltiadv\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED, 'gradesync' => 1))) {
+        if ($tools = \enrol_ltiaas\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED, 'gradesync' => 1))) {
             foreach ($tools as $tool) {
                 mtrace("Starting - Grade sync for shared tool '$tool->id' for the course '$tool->courseid'.");
 
@@ -76,7 +76,7 @@ class sync_grades extends \core\task\scheduled_task {
                 $sendcount = 0;
 
                 // We check for all the users - users can access the same tool from different consumers.
-                if ($ltiusers = \enrol_ltiadv\helper::get_lti_user_enrollments(array('toolid' => $tool->id))) {
+                if ($ltiusers = \enrol_ltiaas\helper::get_lti_user_enrollments(array('toolid' => $tool->id))) {
                     $completion = new \completion_info(get_course($tool->courseid));
                     foreach ($ltiusers as $ltiuser) {
                         $mtracecontent = "for the user '$ltiuser->userid' in the tool '$tool->id' for the course " .
@@ -159,14 +159,14 @@ class sync_grades extends \core\task\scheduled_task {
                         $score->context = $user->username;
 
                         try {
-                            $response = \enrol_ltiadv\helper::ltiaas_post_score($score);
+                            $response = \enrol_ltiaas\helper::ltiaas_post_score($score);
                             if (isset($response['err'])) {
                               $message = $response['err'];
                               mtrace("Failed - The grade '$grade' $mtracecontent failed to send. Generated error message: $message");
                               continue;
                             } 
                             if (sizeof($response['success']) != 0) {
-                              $DB->set_field('enrol_ltiadv_users', 'lastgrade', grade_floatval($grade), array('id' => $ltiuser->id));
+                              $DB->set_field('enrol_ltiaas_users', 'lastgrade', grade_floatval($grade), array('id' => $ltiuser->id));
                               mtrace("Success - The grade '$grade' $mtracecontent was sent to one or more contexts.");
                               $sendcount = $sendcount + 1;
                               foreach ($response['success'] as $success) {

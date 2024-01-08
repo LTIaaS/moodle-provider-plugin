@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the restore_enrol_ltiadv_plugin class.
+ * Defines the restore_enrol_ltiaas_plugin class.
  *
- * @package   enrol_ltiadv
+ * @package   enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,11 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Define all the restore steps.
  *
- * @package   enrol_ltiadv
+ * @package   enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_enrol_ltiadv_plugin extends restore_enrol_plugin {
+class restore_enrol_ltiaas_plugin extends restore_enrol_plugin {
 
     /**
      * @var array $tools Stores the IDs of the newly created tools.
@@ -46,8 +46,8 @@ class restore_enrol_ltiadv_plugin extends restore_enrol_plugin {
     protected function define_enrol_plugin_structure() {
 
         $paths = array();
-        $paths[] = new restore_path_element('enrol_ltiadv_tool', $this->connectionpoint->get_path() . '/tool');
-        $paths[] = new restore_path_element('enrol_ltiadv_users', $this->connectionpoint->get_path() . '/tool/users/user');
+        $paths[] = new restore_path_element('enrol_ltiaas_tool', $this->connectionpoint->get_path() . '/tool');
+        $paths[] = new restore_path_element('enrol_ltiaas_users', $this->connectionpoint->get_path() . '/tool/users/user');
 
         return $paths;
     }
@@ -57,7 +57,7 @@ class restore_enrol_ltiadv_plugin extends restore_enrol_plugin {
      *
      * @param array|stdClass $data
      */
-    public function process_enrol_ltiadv_tool($data) {
+    public function process_enrol_ltiaas_tool($data) {
         global $DB;
 
         $data = (object) $data;
@@ -70,13 +70,13 @@ class restore_enrol_ltiadv_plugin extends restore_enrol_plugin {
         $data->timemodified = $data->timecreated;
 
         // Now we can insert the new record.
-        $data->id = $DB->insert_record('enrol_ltiadv_tools', $data);
+        $data->id = $DB->insert_record('enrol_ltiaas_tools', $data);
 
         // Add the array of tools we need to process later.
         $this->tools[$data->id] = $data;
 
         // Set up the mapping.
-        $this->set_mapping('enrol_ltiadv_tool', $oldid, $data->id);
+        $this->set_mapping('enrol_ltiaas_tool', $oldid, $data->id);
     }
 
     /**
@@ -84,16 +84,16 @@ class restore_enrol_ltiadv_plugin extends restore_enrol_plugin {
      *
      * @param array|stdClass $data The data to insert as a comment
      */
-    public function process_enrol_ltiadv_users($data) {
+    public function process_enrol_ltiaas_users($data) {
         global $DB;
 
         $data = (object) $data;
 
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $data->toolid = $this->get_mappingid('enrol_ltiadv_tool', $data->toolid);
+        $data->toolid = $this->get_mappingid('enrol_ltiaas_tool', $data->toolid);
         $data->timecreated = time();
 
-        $DB->insert_record('enrol_ltiadv_users', $data);
+        $DB->insert_record('enrol_ltiaas_users', $data);
     }
 
     /**
@@ -109,7 +109,7 @@ class restore_enrol_ltiadv_plugin extends restore_enrol_plugin {
             $updatetool->id = $tool->id;
             $updatetool->enrolid = $this->get_mappingid('enrol', $tool->enrolid);
             $updatetool->contextid = $this->get_mappingid('context', $tool->contextid);
-            $DB->update_record('enrol_ltiadv_tools', $updatetool);
+            $DB->update_record('enrol_ltiaas_tools', $updatetool);
         }
     }
 }

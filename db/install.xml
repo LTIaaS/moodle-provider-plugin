@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="enrol/ltiadv/db" VERSION="20170113" COMMENT="XMLDB file for Moodle enrol/ltiadv"
+<XMLDB PATH="enrol/ltiaas/db" VERSION="20170113" COMMENT="XMLDB file for Moodle enrol/ltiaas"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="enrol_ltiadv_tools" COMMENT="List of tools provided to the remote system">
+    <TABLE NAME="enrol_ltiaas_tools" COMMENT="List of tools provided to the remote system">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="customdescription" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Custom Description"/>
@@ -29,7 +29,7 @@
         <KEY NAME="contextid" TYPE="foreign" FIELDS="contextid" REFTABLE="context" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="enrol_ltiadv_users" COMMENT="User access log and gradeback data">
+    <TABLE NAME="enrol_ltiaas_users" COMMENT="User access log and gradeback data">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -41,7 +41,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
-        <KEY NAME="toolid" TYPE="foreign" FIELDS="toolid" REFTABLE="enrol_ltiadv_tools" REFFIELDS="id"/>
+        <KEY NAME="toolid" TYPE="foreign" FIELDS="toolid" REFTABLE="enrol_ltiaas_tools" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

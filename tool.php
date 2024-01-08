@@ -17,8 +17,8 @@
 /**
  * The main entry point for the external system.
  *
- * @package enrol_ltiadv
- * @copyright 2020 Carlos Costa
+ * @package enrol_ltiaas
+ * @copyright 2024 GatherAct LLC (LTIAAS)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,13 +29,13 @@ $ltik = required_param('ltik', PARAM_TEXT);
 $username = required_param('username', PARAM_TEXT);
 
 $PAGE->set_context(context_system::instance());
-$url = new moodle_url('/enrol/ltiadv/tool.php');
+$url = new moodle_url('/enrol/ltiaas/tool.php');
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('popup');
-$PAGE->set_title(get_string('opentool', 'enrol_ltiadv'));
+$PAGE->set_title(get_string('opentool', 'enrol_ltiaas'));
 
 // Get the tool.
-$tool = \enrol_ltiadv\helper::get_lti_tool($toolid);
+$tool = \enrol_ltiaas\helper::get_lti_tool($toolid);
 
 // Check if the authentication plugin is disabled.
 if (!is_enabled_auth('lti')) {
@@ -44,19 +44,19 @@ if (!is_enabled_auth('lti')) {
 }
 
 // Check if the enrolment plugin is disabled.
-if (!enrol_is_enabled('ltiadv')) {
-    print_error('enrolisdisabled', 'enrol_ltiadv');
+if (!enrol_is_enabled('ltiaas')) {
+    print_error('enrolisdisabled', 'enrol_ltiaas');
     exit();
 }
 
 // Check if the enrolment instance is disabled.
 if ($tool->status != ENROL_INSTANCE_ENABLED) {
-    print_error('enrolisdisabled', 'enrol_ltiadv');
+    print_error('enrolisdisabled', 'enrol_ltiaas');
     exit();
 }
 
 // Initialize tool provider.
-$toolprovider = new \enrol_ltiadv\tool_provider($toolid);
+$toolprovider = new \enrol_ltiaas\tool_provider($toolid);
 // Handle the request.
 $response = $toolprovider->launch($ltik, $username);
 

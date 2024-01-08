@@ -17,12 +17,12 @@
 /**
  * Displays enrolment LTI instances.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv;
+namespace enrol_ltiaas;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -33,7 +33,7 @@ require_once($CFG->libdir . '/tablelib.php');
 /**
  * Handles displaying enrolment LTI instances.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -65,7 +65,7 @@ class manage_table extends \table_sql {
      * @param string $courseid The id of the course.
      */
     public function __construct($courseid) {
-        parent::__construct('enrol_ltiadv_manage_table');
+        parent::__construct('enrol_ltiaas_manage_table');
 
         $this->define_columns(array(
             'name',
@@ -74,20 +74,20 @@ class manage_table extends \table_sql {
         ));
         $this->define_headers(array(
             get_string('name'),
-            get_string('description', 'enrol_ltiadv'),
+            get_string('description', 'enrol_ltiaas'),
             get_string('edit')
         ));
         $this->collapsible(false);
         $this->sortable(false);
 
         // Set the variables we need access to.
-        $this->ltiplugin = enrol_get_plugin('ltiadv');
-        $this->ltienabled = enrol_is_enabled('ltiadv');
+        $this->ltiplugin = enrol_get_plugin('ltiaas');
+        $this->ltienabled = enrol_is_enabled('ltiaas');
         $this->canconfig = has_capability('moodle/course:enrolconfig', \context_course::instance($courseid));
         $this->courseid = $courseid;
 
         // Set help icons.
-        /* $launchicon = new \help_icon('launchurl', 'enrol_ltiadv');
+        /* $launchicon = new \help_icon('launchurl', 'enrol_ltiaas');
         $this->define_help_for_headers(['1' => $launchicon]); */
     }
 
@@ -128,14 +128,14 @@ class manage_table extends \table_sql {
         $instance = new \stdClass();
         $instance->id = $tool->enrolid;
         $instance->courseid = $tool->courseid;
-        $instance->enrol = 'ltiadv';
+        $instance->enrol = 'ltiaas';
         $instance->status = $tool->status;
 
         $strdelete = get_string('delete');
         $strenable = get_string('enable');
         $strdisable = get_string('disable');
 
-        $url = new \moodle_url('/enrol/ltiadv/index.php', array('sesskey' => sesskey(), 'courseid' => $this->courseid));
+        $url = new \moodle_url('/enrol/ltiaas/index.php', array('sesskey' => sesskey(), 'courseid' => $this->courseid));
 
         if ($this->ltiplugin->can_delete_instance($instance)) {
             $aurl = new \moodle_url($url, array('action' => 'delete', 'instanceid' => $instance->id));
@@ -159,7 +159,7 @@ class manage_table extends \table_sql {
             $linkparams = array(
                 'courseid' => $instance->courseid,
                 'id' => $instance->id, 'type' => $instance->enrol,
-                'returnurl' => new \moodle_url('/enrol/ltiadv/index.php', array('courseid' => $this->courseid))
+                'returnurl' => new \moodle_url('/enrol/ltiaas/index.php', array('courseid' => $this->courseid))
             );
             $editlink = new \moodle_url("/enrol/editinstance.php", $linkparams);
             $buttons[] = $OUTPUT->action_icon($editlink, new \pix_icon('t/edit', get_string('edit'), 'core',
@@ -176,9 +176,9 @@ class manage_table extends \table_sql {
      * @param bool $useinitialsbar do you want to use the initials bar.
      */
     public function query_db($pagesize, $useinitialsbar = true) {
-        $total = \enrol_ltiadv\helper::count_lti_tools(array('courseid' => $this->courseid));
+        $total = \enrol_ltiaas\helper::count_lti_tools(array('courseid' => $this->courseid));
         $this->pagesize($pagesize, $total);
-        $tools = \enrol_ltiadv\helper::get_lti_tools(array('courseid' => $this->courseid), $this->get_page_start(),
+        $tools = \enrol_ltiaas\helper::get_lti_tools(array('courseid' => $this->courseid), $this->get_page_start(),
             $this->get_page_size());
         $this->rawdata = $tools;
         // Set initial bars.

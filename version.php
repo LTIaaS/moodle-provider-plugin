@@ -17,8 +17,8 @@
 /**
  * LTI Advantage enrolment plugin version information
  *
- * @package enrol_ltiadv
- * @copyright 2020 Carlos Costa
+ * @package enrol_ltiaas
+ * @copyright 2024 GatherAct LLC (LTIAAS)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,4 +26,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version = 2022100100; // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires = 2020061500; // Requires this Moodle version.
-$plugin->component = 'enrol_ltiadv'; // Full name of the plugin (used for diagnostics).
+$plugin->component = 'enrol_ltiaas'; // Full name of the plugin (used for diagnostics).

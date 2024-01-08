@@ -17,12 +17,12 @@
 /**
  * Extends the IMS Tool provider library for the LTI enrolment.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2020 Carlos Costa
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv;
+namespace enrol_ltiaas;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/user/lib.php');
 /**
  * Extends the IMS Tool provider library for the LTI enrolment.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2020 Carlos Costa
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -107,7 +107,7 @@ class tool_provider extends ToolProvider {
 
         // Display the error message from the provider's side if the consumer has not specified a URL to pass the error to.
         if (empty($this->returnUrl)) {
-            $this->errorOutput = $OUTPUT->notification(get_string('failedrequest', 'enrol_ltiadv', ['reason' => $message]), 'error');
+            $this->errorOutput = $OUTPUT->notification(get_string('failedrequest', 'enrol_ltiaas', ['reason' => $message]), 'error');
         }
     }
 
@@ -222,7 +222,7 @@ class tool_provider extends ToolProvider {
 
         // Display an error, if there is one.
         if ($result !== helper::ENROLMENT_SUCCESSFUL) {
-            print_error($result, 'enrol_ltiadv');
+            print_error($result, 'enrol_ltiaas');
             exit();
         }
 
@@ -233,9 +233,9 @@ class tool_provider extends ToolProvider {
         // Login user.
 
         // Check if we have recorded this user before.
-        if ($userlog = $DB->get_record('enrol_ltiadv_users', ['toolid' => $tool->id, 'userid' => $user->id])) {
+        if ($userlog = $DB->get_record('enrol_ltiaas_users', ['toolid' => $tool->id, 'userid' => $user->id])) {
             $userlog->lastaccess = time();
-            $DB->update_record('enrol_ltiadv_users', $userlog);
+            $DB->update_record('enrol_ltiaas_users', $userlog);
         } else {
             // Add the user details so we can use it later when syncing grades and members.
             $userlog = new stdClass();
@@ -244,7 +244,7 @@ class tool_provider extends ToolProvider {
             $userlog->lastgrade = null;
             $userlog->lastaccess = time();
             $userlog->timecreated = time();
-            $DB->insert_record('enrol_ltiadv_users', $userlog);
+            $DB->insert_record('enrol_ltiaas_users', $userlog);
         }
 
         // Finalise the user log in.
@@ -268,8 +268,8 @@ class tool_provider extends ToolProvider {
 
         if (empty($CFG->allowframembedding)) {
             // Provide an alternative link.
-            $stropentool = get_string('opentool', 'enrol_ltiadv');
-            echo html_writer::tag('p', get_string('frameembeddingnotenabled', 'enrol_ltiadv'));
+            $stropentool = get_string('opentool', 'enrol_ltiaas');
+            echo html_writer::tag('p', get_string('frameembeddingnotenabled', 'enrol_ltiaas'));
             echo html_writer::link($urltogo, $stropentool, ['target' => '_blank']);
             return true;
         } else {

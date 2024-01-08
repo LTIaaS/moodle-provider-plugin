@@ -18,7 +18,7 @@
 /**
  * This file keeps track of upgrades to the lti enrolment plugin
  *
- * @package enrol_ltiadv
+ * @package enrol_ltiaas
  * @copyright  2016 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +36,7 @@
  *
  * @return boolean
  */
-function xmldb_enrol_ltiadv_upgrade($oldversion) {
+function xmldb_enrol_ltiaas_upgrade($oldversion) {
     global $CFG;
 
     // Automatically generated Moodle v3.5.0 release upgrade line.
@@ -57,8 +57,8 @@ function xmldb_enrol_ltiadv_upgrade($oldversion) {
     $dbman = $DB->get_manager();
     if ($oldversion < 2021022001) {
 
-      // Define field tag to be added to enrol_ltiadv_tools.
-      $table = new xmldb_table('enrol_ltiadv_tools');
+      // Define field tag to be added to enrol_ltiaas_tools.
+      $table = new xmldb_table('enrol_ltiaas_tools');
       $field = new xmldb_field('customdescription', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'id');
 
         // Conditionally launch add field tag.
@@ -66,8 +66,8 @@ function xmldb_enrol_ltiadv_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Ltiadv savepoint reached.
-        upgrade_plugin_savepoint(true, 2021022001, 'enrol', 'ltiadv');
+        // ltiaas savepoint reached.
+        upgrade_plugin_savepoint(true, 2021022001, 'enrol', 'ltiaas');
     }
 
 

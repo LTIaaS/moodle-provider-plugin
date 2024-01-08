@@ -17,11 +17,11 @@
 /**
  * Tool registration page class.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace enrol_ltiadv\output;
+namespace enrol_ltiaas\output;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -33,7 +33,7 @@ use stdClass;
 /**
  * Tool registration page class.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 John Okely <john@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

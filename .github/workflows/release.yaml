@@ -21,10 +21,10 @@ jobs:
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        filename: 'ltiadv.zip'
+        filename: 'ltiaas.zip'
         exclusions: '*.git*'
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
-        artifacts: "ltiadv.zip"
+        artifacts: "ltiaas.zip"
         token: ${{ secrets.GITHUB_TOKEN }}

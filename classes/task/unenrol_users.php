@@ -17,19 +17,19 @@
 /**
  * Handles unenrolling users.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv\task;
+namespace enrol_ltiaas\task;
 
 use stdClass;
 
 /**
  * Task for unenrolling LTI users.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,7 +41,7 @@ class unenrol_users extends \core\task\scheduled_task {
      * @return string
      */
     public function get_name() {
-        return get_string('tasksunenrolusers', 'enrol_ltiadv');
+        return get_string('tasksunenrolusers', 'enrol_ltiaas');
     }
 
     /**
@@ -51,7 +51,7 @@ class unenrol_users extends \core\task\scheduled_task {
      */
     public function execute() {
         global $DB;
-        $ltiplugin = enrol_get_plugin('ltiadv');
+        $ltiplugin = enrol_get_plugin('ltiaas');
 
         // Check if the authentication plugin is disabled.
         if (!is_enabled_auth('lti')) {
@@ -61,13 +61,13 @@ class unenrol_users extends \core\task\scheduled_task {
 
         // Check if the enrolment plugin is disabled - isn't really necessary as the task should not run if
         // the plugin is disabled, but there is no harm in making sure core hasn't done something wrong.
-        if (!enrol_is_enabled('ltiadv')) {
-            mtrace('Skipping task - ' . get_string('enrolisdisabled', 'enrol_ltiadv'));
+        if (!enrol_is_enabled('ltiaas')) {
+            mtrace('Skipping task - ' . get_string('enrolisdisabled', 'enrol_ltiaas'));
             return true;
         }
 
         // Get all the enabled tools.
-        if ($tools = \enrol_ltiadv\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED))) {
+        if ($tools = \enrol_ltiaas\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED))) {
             foreach ($tools as $tool) {
                 if (!$tool->enrolperiod) {
                   mtrace("Skipping - Skipping unenrollment of expired users for tool '$tool->id' for the course '$tool->courseid'. Enrol period disabled.");
@@ -78,7 +78,7 @@ class unenrol_users extends \core\task\scheduled_task {
                 $usercount = 0;
 
                 // We check for all the users - users can access the same tool from different consumers.
-                if ($ltiusers = \enrol_ltiadv\helper::get_lti_user_enrollments(array('toolid' => $tool->id))) {
+                if ($ltiusers = \enrol_ltiaas\helper::get_lti_user_enrollments(array('toolid' => $tool->id))) {
                     foreach ($ltiusers as $ltiuser) {
                         if ($ltiuser->timeend && $ltiuser->timeend < time()) {
                           // Unenrol expired user
@@ -86,7 +86,7 @@ class unenrol_users extends \core\task\scheduled_task {
                           $instance = new stdClass();
                           $instance->id = $tool->enrolid;
                           $instance->courseid = $tool->courseid;
-                          $instance->enrol = 'ltiadv';
+                          $instance->enrol = 'ltiaas';
                           $ltiplugin->unenrol_user($instance, $ltiuser->userid);
                         }
                     }

@@ -17,7 +17,7 @@
 /**
  * LTI enrolment plugin version information
  *
- * @package enrol_ltiadv
+ * @package enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -64,16 +64,16 @@ $string['ltiaasapikey'] = 'Ltiaas API Key';
 $string['ltiaasapikey_help'] = 'API Key used to communicate with Ltiaas.';
 $string['ltiaasurl'] = 'Ltiaas Server URL';
 $string['ltiaasurl_help'] = 'URL of the Ltiaas server.';
-$string['ltiadv:config'] = 'Configure \'Publish as LTI Advantage tool\' instances';
-$string['ltiadv:unenrol'] = 'Unenrol users from the course';
+$string['ltiaas:config'] = 'Configure \'Publish as LTI Advantage tool\' instances';
+$string['ltiaas:unenrol'] = 'Unenrol users from the course';
 $string['opentool'] = 'Open tool';
 $string['pluginname'] = 'Publish as LTI Advantage tool';
 $string['pluginname_desc'] = 'The \'Publish as LTI Advantage tool\' plugin, together with the LTI authentication plugin, allows remote users to access selected courses and activities. In other words, Moodle functions as an LTI tool provider.';
-$string['privacy:metadata:enrol_ltiadv_users'] = 'The list of users enrolled via an LTI provider';
-$string['privacy:metadata:enrol_ltiadv_users:userid'] = 'The ID of the user';
-$string['privacy:metadata:enrol_ltiadv_users:lastgrade'] = 'The last grade the user was recorded of having';
-$string['privacy:metadata:enrol_ltiadv_users:lastaccess'] = 'The time when the user last accessed the course';
-$string['privacy:metadata:enrol_ltiadv_users:timecreated'] = 'The time when the user was enrolled';
+$string['privacy:metadata:enrol_ltiaas_users'] = 'The list of users enrolled via an LTI provider';
+$string['privacy:metadata:enrol_ltiaas_users:userid'] = 'The ID of the user';
+$string['privacy:metadata:enrol_ltiaas_users:lastgrade'] = 'The last grade the user was recorded of having';
+$string['privacy:metadata:enrol_ltiaas_users:lastaccess'] = 'The time when the user last accessed the course';
+$string['privacy:metadata:enrol_ltiaas_users:timecreated'] = 'The time when the user was enrolled';
 $string['registration'] = 'Published tool registration';
 $string['registrationurl'] = 'Registration URL';
 $string['registrationurl_help'] = 'If a registration URL (also called proxy URL) is used, then the tool is automatically configured.';

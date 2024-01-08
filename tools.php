@@ -17,8 +17,8 @@
 /**
  * Endpoint responsible for returning the registered tools.
  *
- * @package enrol_ltiadv
- * @copyright 2020 Carlos Costa
+ * @package enrol_ltiaas
+ * @copyright 2024 GatherAct LLC (LTIAAS)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -57,7 +57,7 @@ function getBearerToken() {
 }
 
 $token = getBearerToken();
-$api_key = get_config('enrol_ltiadv', 'ltiaasapikey');
+$api_key = get_config('enrol_ltiaas', 'ltiaasapikey');
 if ($token != $api_key) {
   http_response_code (401);
   echo 'Unauthorized';
@@ -65,12 +65,12 @@ if ($token != $api_key) {
 }
 
 // Get the published tools.
-$tools = \enrol_ltiadv\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED));
+$tools = \enrol_ltiaas\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED));
 
 // Assemble array of information
 $response = [];
 foreach ($tools as $key => $value) {
-    array_push($response, ["url" => \enrol_ltiadv\helper::get_launch_url($value->id), "name" => $value->name, "description" => \enrol_ltiadv\helper::get_description($value) ]);
+    array_push($response, ["url" => \enrol_ltiaas\helper::get_launch_url($value->id), "name" => $value->name, "description" => \enrol_ltiaas\helper::get_description($value) ]);
 }
 
 header('Content-type: application/json');

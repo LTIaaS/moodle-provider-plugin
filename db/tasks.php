@@ -17,14 +17,14 @@
 /**
  * Enrol LTI tasks.
  *
- * @package    enrol_ltiadv
+ * @package    enrol_ltiaas
  * @copyright  2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $tasks = array(
     array(
-        'classname' => 'enrol_ltiadv\task\sync_grades',
+        'classname' => 'enrol_ltiaas\task\sync_grades',
         'blocking' => 0,
         'minute' => '*/30',
         'hour' => '*',
@@ -33,7 +33,7 @@ $tasks = array(
         'month' => '*'
     ),
     array(
-      'classname' => 'enrol_ltiadv\task\unenrol_users',
+      'classname' => 'enrol_ltiaas\task\unenrol_users',
       'blocking' => 0,
       'minute' => '*/20',
       'hour' => '*',

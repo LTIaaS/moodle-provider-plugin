@@ -17,19 +17,19 @@
 /**
  * LTI enrolment plugin helper.
  *
- * @package enrol_ltiadv
+ * @package enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace enrol_ltiadv;
+namespace enrol_ltiaas;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * LTI enrolment plugin helper class.
  *
- * @package enrol_ltiadv
+ * @package enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -93,7 +93,7 @@ class helper {
             $userkey = false;
         }
 
-        return 'enrol_ltiadv' . sha1($consumerkey . '::' . $userkey);
+        return 'enrol_ltiaas' . sha1($consumerkey . '::' . $userkey);
     }
 
     /**
@@ -266,9 +266,9 @@ class helper {
             $instance = new \stdClass();
             $instance->id = $tool->enrolid;
             $instance->courseid = $tool->courseid;
-            $instance->enrol = 'ltiadv';
+            $instance->enrol = 'ltiaas';
             $instance->status = $tool->status;
-            $ltienrol = enrol_get_plugin('ltiadv');
+            $ltienrol = enrol_get_plugin('ltiaas');
 
             // Hack - need to do this to workaround DB caching hack. See MDL-53977.
             $timestart = intval(substr(time(), 0, 8) . '00') - 1;
@@ -288,7 +288,7 @@ class helper {
         global $DB;
 
         $sql = "SELECT elt.*, e.name, e.courseid, e.status, e.enrolstartdate, e.enrolenddate, e.enrolperiod
-                  FROM {enrol_ltiadv_tools} elt
+                  FROM {enrol_ltiaas_tools} elt
                   JOIN {enrol} e
                     ON elt.enrolid = e.id
                  WHERE elt.id = :tid";
@@ -308,7 +308,7 @@ class helper {
         global $DB;
 
         $sql = "SELECT elt.*, e.name, e.courseid, e.status, e.enrolstartdate, e.enrolenddate, e.enrolperiod
-                  FROM {enrol_ltiadv_tools} elt
+                  FROM {enrol_ltiaas_tools} elt
                   JOIN {enrol} e
                     ON elt.enrolid = e.id";
         if ($params) {
@@ -333,7 +333,7 @@ class helper {
       global $DB;
 
       $sql = "SELECT elt.*, e.timestart, e.timeend, e.timecreated, e.timemodified
-                FROM {enrol_ltiadv_users} elt
+                FROM {enrol_ltiaas_users} elt
                 JOIN {user_enrolments} e
                   ON elt.userid = e.userid";
       if ($params) {
@@ -358,7 +358,7 @@ class helper {
         global $DB;
 
         $sql = "SELECT COUNT(*)
-                  FROM {enrol_ltiadv_tools} elt
+                  FROM {enrol_ltiaas_tools} elt
                   JOIN {enrol} e
                     ON elt.enrolid = e.id";
         if ($params) {
@@ -414,7 +414,7 @@ class helper {
      * @since Moodle 3.2
      */
     public static function get_launch_url($toolid) {
-        $url = get_config('enrol_ltiadv', 'ltiaasurl');
+        $url = get_config('enrol_ltiaas', 'ltiaasurl');
         $url_parts = parse_url($url);
 
         if (isset($url_parts['query'])) {
@@ -440,8 +440,8 @@ class helper {
      * @since Moodle 3.10
      */
     public static function ltiaas_get_idtoken($ltik) {
-        $ltiaas = get_config('enrol_ltiadv', 'ltiaasurl');
-        $api_key = get_config('enrol_ltiadv', 'ltiaasapikey');
+        $ltiaas = get_config('enrol_ltiaas', 'ltiaasurl');
+        $api_key = get_config('enrol_ltiaas', 'ltiaasapikey');
         $url_parts = parse_url($ltiaas);
         
         if (!isset($url_parts['path'])) $url_parts['path'] = '';
@@ -470,8 +470,8 @@ class helper {
      * @since Moodle 3.10
      */
     public static function ltiaas_post_score($score) {
-      $ltiaas = get_config('enrol_ltiadv', 'ltiaasurl');
-      $api_key = get_config('enrol_ltiadv', 'ltiaasapikey');
+      $ltiaas = get_config('enrol_ltiaas', 'ltiaasurl');
+      $api_key = get_config('enrol_ltiaas', 'ltiaasapikey');
       $url_parts = parse_url($ltiaas);
       
       if (!isset($url_parts['path'])) $url_parts['path'] = '';
@@ -622,9 +622,9 @@ class helper {
         $id = $tool->id;
         $token = self::generate_cartridge_token($tool->id);
         if ($CFG->slasharguments) {
-            $url = new \moodle_url('/enrol/ltiadv/cartridge.php/' . $id . '/' . $token . '/cartridge.xml');
+            $url = new \moodle_url('/enrol/ltiaas/cartridge.php/' . $id . '/' . $token . '/cartridge.xml');
         } else {
-            $url = new \moodle_url('/enrol/ltiadv/cartridge.php',
+            $url = new \moodle_url('/enrol/ltiaas/cartridge.php',
                     array(
                         'id' => $id,
                         'token' => $token
@@ -650,9 +650,9 @@ class helper {
         $id = $tool->id;
         $token = self::generate_proxy_token($tool->id);
         if ($CFG->slasharguments) {
-            $url = new \moodle_url('/enrol/ltiadv/proxy.php/' . $id . '/' . $token . '/');
+            $url = new \moodle_url('/enrol/ltiaas/proxy.php/' . $id . '/' . $token . '/');
         } else {
-            $url = new \moodle_url('/enrol/ltiadv/proxy.php',
+            $url = new \moodle_url('/enrol/ltiaas/proxy.php',
                     array(
                         'id' => $id,
                         'token' => $token
@@ -673,7 +673,7 @@ class helper {
      */
     public static function generate_cartridge_token($toolid) {
         $siteidentifier = get_site_identifier();
-        $checkhash = md5($siteidentifier . '_enrol_ltiadv_cartridge_' . $toolid);
+        $checkhash = md5($siteidentifier . '_enrol_ltiaas_cartridge_' . $toolid);
         return $checkhash;
     }
 
@@ -688,7 +688,7 @@ class helper {
      */
     public static function generate_proxy_token($toolid) {
         $siteidentifier = get_site_identifier();
-        $checkhash = md5($siteidentifier . '_enrol_ltiadv_proxy_' . $toolid);
+        $checkhash = md5($siteidentifier . '_enrol_ltiaas_proxy_' . $toolid);
         return $checkhash;
     }
 

@@ -17,13 +17,13 @@
 /**
  * List the tool provided in a course
  *
- * @package enrol_ltiadv
- * @copyright 2020 Carlos Costa
+ * @package ltiaas
+ * @copyright 2024 GatherAct LLC (LTIAAS)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot.'/enrol/ltiadv/lib.php');
+require_once($CFG->dirroot.'/enrol/ltiaas/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
@@ -41,9 +41,9 @@ $context = context_course::instance($course->id);
 require_login($course);
 require_capability('moodle/course:enrolreview', $context);
 
-$ltiplugin = enrol_get_plugin('ltiadv');
+$ltiplugin = enrol_get_plugin('ltiaas');
 $canconfig = has_capability('moodle/course:enrolconfig', $context);
-$pageurl = new moodle_url('/enrol/ltiadv/index.php', array('courseid' => $courseid));
+$pageurl = new moodle_url('/enrol/ltiaas/index.php', array('courseid' => $courseid));
 
 $PAGE->set_url($pageurl);
 $PAGE->set_title(get_string('course') . ': ' . $course->fullname);
@@ -58,7 +58,7 @@ if ($action) {
                 redirect($PAGE->url);
             }
 
-            $yesurl = new moodle_url('/enrol/ltiadv/index.php',
+            $yesurl = new moodle_url('/enrol/ltiaas/index.php',
                 array('courseid' => $course->id,
                     'action' => 'delete',
                     'instanceid' => $instance->id,
@@ -98,17 +98,17 @@ if ($action) {
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('toolsprovided', 'enrol_ltiadv'));
-echo "<p>" .get_string('toolsprovided_help', 'enrol_ltiadv') . "</p>";
-echo "<p class=helplink>" . $OUTPUT->doc_link('enrol/ltiadv/index',
+echo $OUTPUT->heading(get_string('toolsprovided', 'enrol_ltiaas'));
+echo "<p>" .get_string('toolsprovided_help', 'enrol_ltiaas') . "</p>";
+echo "<p class=helplink>" . $OUTPUT->doc_link('enrol/ltiaas/index',
     get_string('morehelp')) ."</p>";
 
-if (\enrol_ltiadv\helper::count_lti_tools(array('courseid' => $courseid)) > 0) {
-    $table = new \enrol_ltiadv\manage_table($courseid);
+if (\enrol_ltiaas\helper::count_lti_tools(array('courseid' => $courseid)) > 0) {
+    $table = new \enrol_ltiaas\manage_table($courseid);
     $table->define_baseurl($pageurl);
     $table->out(50, false);
 } else {
-    $notify = new \core\output\notification(get_string('notoolsprovided', 'enrol_ltiadv'),
+    $notify = new \core\output\notification(get_string('notoolsprovided', 'enrol_ltiaas'),
         \core\output\notification::NOTIFY_WARNING);
     echo $OUTPUT->render($notify);
 }
@@ -116,9 +116,9 @@ if (\enrol_ltiadv\helper::count_lti_tools(array('courseid' => $courseid)) > 0) {
 if ($ltiplugin->can_add_instance($course->id)) {
     echo $OUTPUT->single_button(new moodle_url('/enrol/editinstance.php',
         array(
-            'type' => 'ltiadv',
+            'type' => 'ltiaas',
             'courseid' => $course->id,
-            'returnurl' => new moodle_url('/enrol/ltiadv/index.php', array('courseid' => $course->id)))
+            'returnurl' => new moodle_url('/enrol/ltiaas/index.php', array('courseid' => $course->id)))
         ),
         get_string('add'));
 }

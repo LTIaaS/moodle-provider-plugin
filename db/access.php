@@ -17,7 +17,7 @@
 /**
  * Capabilities for LTI enrolment plugin.
  *
- * @package enrol_ltiadv
+ * @package enrol_ltiaas
  * @copyright 2016 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $capabilities = array(
 
     /* Add, edit or remove lti enrol instance. */
-    'enrol/ltiadv:config' => array(
+    'enrol/ltiaas:config' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
@@ -36,7 +36,7 @@ $capabilities = array(
         )
     ),
 
-    'enrol/ltiadv:unenrol' => array(
+    'enrol/ltiaas:unenrol' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
