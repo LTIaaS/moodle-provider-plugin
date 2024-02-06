@@ -22,6 +22,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+
 require_once(__DIR__ . '/../../config.php');
 
 $ltik = required_param('ltik', PARAM_TEXT);
@@ -29,19 +31,15 @@ $ltik = required_param('ltik', PARAM_TEXT);
 $idtoken = \enrol_ltiaas\helper::ltiaas_get_idtoken($ltik);
 
 if (!$idtoken) {
-  $this->errmessage = 'Unable to retrieve ID Token.';
-  die();
+  print('Unable to retrieve ID Token.');
+  //die();
 }
 
 // Get the published tools.
 $tools = \enrol_ltiaas\helper::get_lti_tools(array('status' => ENROL_INSTANCE_ENABLED));
 
 // Assemble array of information
-$response = [];
-foreach ($tools as $key => $value) {
-    array_push($response, ["url" => \enrol_ltiaas\helper::get_launch_url($value->id), "name" => $value->name, "description" => \enrol_ltiaas\helper::get_description($value) ]);
-}
+$output = \enrol_ltiaas\helper::get_tools_object($tools);
 
-print_r($response);
 
-echo $OUTPUT->render_from_template("enrol_ltiaas/deeplinking", $response);
+print_r($output);
