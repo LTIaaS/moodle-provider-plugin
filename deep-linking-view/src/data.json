@@ -1,0 +1,49 @@
+[
+    {
+        "url" : "https://admin-us.ltiaas.com?id=1",
+        "name" : "LTIAAS 101",
+        "description" : "An awesome course",
+        "parent" : 0,
+        "depth" : 3,
+        "id" : 15,
+        "children" : [
+            {
+                "url" : "https://admin-us.ltiaas.com?id=2",
+                "name" : "Admin US",
+                "description" : "A cool learning activity",
+                "parent" : 15,
+                "depth" : 4,
+                "id" : 26,
+                "children" : []
+            },
+            {
+                "url" : "https://admin-us.ltiaas.com?id=3",
+                "name" : "Admin US 3",
+                "description" : "A cool learning activity 3",
+                "parent" : 15,
+                "depth" : 4,
+                "id" : 26,
+                "children" : []
+            }
+        ]
+    },
+    {
+        "url" : "https://admin-us.ltiaas.com?id=1",
+        "name" : "LTIAAS 102",
+        "description" : "Another course",
+        "parent" : 0,
+        "depth" : 3,
+        "id" : 15,
+        "children" : [
+            {
+                "url" : "https://admin-us.ltiaas.com?id=2",
+                "name" : "Admin US 2",
+                "description" : "Another activity",
+                "parent" : 15,
+                "depth" : 4,
+                "id" : 26,
+                "children" : []
+            }
+        ]
+    }
+]
