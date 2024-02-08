@@ -603,12 +603,14 @@ class helper {
         $name = '';
         if ($context->contextlevel == CONTEXT_COURSE) {
             $course = $DB->get_record('course', array('id' => $context->instanceid));
-            $name = $course->title;
+            $name = $course->fullname;
+        } else if ($context->contextlevel == CONTEXT_BLOCK) {
+            $block = $DB->get_record('block', array('id' => $context->instanceid));
+            $name = $block->name;
         } else if ($context->contextlevel == CONTEXT_MODULE) {
-            $cmid = $context->instanceid;
             $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
             $module = $DB->get_record($cm->modname, array('id' => $cm->instance));
-            $name = $module->title;
+            $name = $module->name;
         }
         return trim(html_to_text($name));
       } 
@@ -842,85 +844,110 @@ class helper {
     }
 
     // Add a parent of a tool to the array of tools (for display only)
-    protected static function add_parent($context_id, $tools) {
-        $context = \context::instance_by_id($context_id);
+    protected static function add_parent($context, $tools) {
         foreach ($tools as $t) {
-            if ($t->id == $context->id) {
-                return; // don't create a duplicate
+            if ($t["id"] == $context->id) {
+                return []; // don't create a duplicate
             }
         }
+        $new_tools = array();
+        $new_tools = $tools;
         $parent_id = 0;
+        $iconurl = "";
         if($context->depth > 3) {
-            $parent_ids = explode('/',$context->path);
-            end($parent_ids);
-            $parent_id = prev($parent_ids);
-            self::add_parent($parent_id, $tools);
+            $parent_context = $context->get_parent_context();
+            $parents = self::add_parent($parent_context, $tools);
+            $new_tools = array_merge($new_tools, $parents);
+            $parent_id = $parent_context->id;
+        } else {
+            // must be a course
+            $course = get_course($context->instanceid);
+            $iconurl = \core_course\external\course_summary_exporter::get_course_image($course);
         }
-        array_push($tools, [
+
+        array_push($new_tools, [
             "url" => "",
+            "icon" => $iconurl,
             "name" => \enrol_ltiaas\helper::get_context_name($context),
             "description" => \enrol_ltiaas\helper::get_context_description($context),
             "parent" => $parent_id,
             "depth" => $context->depth,
             "id" => $context->id
         ]);
+        return $new_tools;
     }
   
     // Add a tool to the array of tools
     protected static function add_tool($tool, $tools) {
         $context = \context::instance_by_id($tool->contextid);
         $parent_id = 0;
+        $new_tools = array();
+        $new_tools = $tools;
+        $iconurl = "";
         if($context->depth > 3) {
-            $parent_ids = explode('/',$context->path);
-            end($parent_ids);
-            $parent_id = prev($parent_ids);
-            self::add_parent($parent_id, $tools);
+            $parent_context = $context->get_parent_context();
+            $parents = self::add_parent($parent_context, $tools);
+            $new_tools = array_merge($new_tools, $parents);
+            $parent_id = $parent_context->id;
+            if($context->contextlevel == CONTEXT_MODULE) {
+                print("depth: ".$context->depth."; getting course ".$parent_context->instanceid." module ".$tool->id);
+                $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
+                $iconurl = get_fast_modinfo($parent_context->instanceid)->get_cm($cm->instance)->get_icon_url()->out(false);
+            }
         }
-        array_push($tools, [
+        if($context->contextlevel == CONTEXT_COURSE) {
+            print("depth: ".$context->depth."; getting course ".$context->instanceid);
+            $course = get_course($context->instanceid);
+            $iconurl = \core_course\external\course_summary_exporter::get_course_image($course);
+        }
+        array_push($new_tools, [
             "url" => \enrol_ltiaas\helper::get_launch_url($tool->id),
-            "name" => $tool->name,
+            "icon" => $iconurl,
+            "name" => \enrol_ltiaas\helper::get_context_name($context),
             "description" => \enrol_ltiaas\helper::get_description($tool),
             "parent" => $parent_id,
             "depth" => $context->depth,
             "id" => $context->id
         ]);
+        return $new_tools;
     }
 
     public static function get_tools_object($tools) {
         $response = [];
         foreach ($tools as $key => $value) {
-        \enrol_ltiaas\helper::add_tool($value, $response);
+            $new_tools = self::add_tool($value, $response);
+            $response = array_merge($response, $new_tools);
         }
 
-        print_r($response);
+        //print_r($response);
 
 
         $output = [];
         foreach ($response as $k1 => $v1) {
-            if($v1->depth == 3) {
+            if($v1["depth"] == 3) {
                 //print v1 (Course)
-                $course = clone $v1;
+                $course = $v1;
                 $course_children = [];
                 foreach ($response as $k2 => $v2) {
-                    if($v2->parent == $v1->id) {
+                    if($v2["parent"] == $v1["id"]) {
                         // print v2 (Module)
-                        $module = clone $v2;
+                        $module = $v2;
                         $module_children = [];
-                        array_push($course{"children"}, $module);
                         foreach ($response as $k3 => $v3) {
-                            if($v3->parent == $v2->id) {
+                            if($v3["parent"] == $v2["id"]) {
                                 // print v3 (Activity)
-                                $activity = clone $v3;
+                                $activity = $v3;
                                 array_push($module_children, $activity);
                             }
                         }
                         $module["children"] = $module_children;
+                        array_push($course_children, $module);
                     }
                 }
                 $course["children"] = $course_children;
                 array_push($output, $course);
             }
         }
+        return $output;
     }
-  
 }
