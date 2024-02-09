@@ -844,7 +844,7 @@ class helper {
     }
 
     // Add a parent of a tool to the array of tools (for display only)
-    protected static function add_parent($context, $tools) {
+    /*protected static function add_parent($context, $tools) {
         foreach ($tools as $t) {
             if ($t["id"] == $context->id) {
                 return []; // don't create a duplicate
@@ -875,20 +875,20 @@ class helper {
             "id" => $context->id
         ]);
         return $new_tools;
-    }
+    }*/
   
     // Add a tool to the array of tools
     protected static function add_tool($tool, $tools) {
         $context = \context::instance_by_id($tool->contextid);
-        $parent_id = 0;
+        //$parent_id = 0;
         $new_tools = array();
         $new_tools = $tools;
         $iconurl = "";
         if($context->depth > 3) {
             $parent_context = $context->get_parent_context();
-            $parents = self::add_parent($parent_context, $tools);
-            $new_tools = array_merge($new_tools, $parents);
-            $parent_id = $parent_context->id;
+            //$parents = self::add_parent($parent_context, $tools);
+            //$new_tools = array_merge($new_tools, $parents);
+            //$parent_id = $parent_context->id;
             if($context->contextlevel == CONTEXT_MODULE) {
                 print("depth: ".$context->depth."; getting course ".$parent_context->instanceid." module ".$tool->id);
                 $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
@@ -905,7 +905,8 @@ class helper {
             "icon" => $iconurl,
             "name" => \enrol_ltiaas\helper::get_context_name($context),
             "description" => \enrol_ltiaas\helper::get_description($tool),
-            "parent" => $parent_id,
+            "type" => ($context->contextlevel == CONTEXT_COURSE) ? "COURSE" : "MODULE",
+            //"parent" => $parent_id,
             "depth" => $context->depth,
             "id" => $context->id
         ]);
@@ -919,10 +920,11 @@ class helper {
             $response = array_merge($response, $new_tools);
         }
 
-        //print_r($response);
+        return $response;
 
 
-        $output = [];
+        // Find the parent courses of modules so that the UI can display them hierarhically
+        /*$output = [];
         foreach ($response as $k1 => $v1) {
             if($v1["depth"] == 3) {
                 //print v1 (Course)
@@ -948,6 +950,6 @@ class helper {
                 array_push($output, $course);
             }
         }
-        return $output;
+        return $output;*/
     }
 }
