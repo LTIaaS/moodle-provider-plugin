@@ -890,13 +890,11 @@ class helper {
             //$new_tools = array_merge($new_tools, $parents);
             //$parent_id = $parent_context->id;
             if($context->contextlevel == CONTEXT_MODULE) {
-                print("depth: ".$context->depth."; getting course ".$parent_context->instanceid." module ".$tool->id);
                 $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
                 $iconurl = get_fast_modinfo($parent_context->instanceid)->get_cm($cm->instance)->get_icon_url()->out(false);
             }
         }
         if($context->contextlevel == CONTEXT_COURSE) {
-            print("depth: ".$context->depth."; getting course ".$context->instanceid);
             $course = get_course($context->instanceid);
             $iconurl = \core_course\external\course_summary_exporter::get_course_image($course);
         }

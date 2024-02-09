@@ -31,7 +31,7 @@ $ltik = required_param('ltik', PARAM_TEXT);
 $idtoken = \enrol_ltiaas\helper::ltiaas_get_idtoken($ltik);
 
 if (!$idtoken) {
-  print('Unable to retrieve ID Token.');
+  //print('Unable to retrieve ID Token.');
   //die();
 }
 
@@ -41,5 +41,5 @@ $tools = \enrol_ltiaas\helper::get_lti_tools(array('status' => ENROL_INSTANCE_EN
 // Assemble array of information
 $output = \enrol_ltiaas\helper::get_tools_object($tools);
 
-
-print_r($output);
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($output);
