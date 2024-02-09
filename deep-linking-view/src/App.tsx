@@ -4,7 +4,7 @@ import { Button } from "primereact/button";
 import jdata from './data.json';
 import { DataView } from 'primereact/dataview';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChalkboard, faGraduationCap, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faChalkboard, faGraduationCap, faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { Tag } from 'primereact/tag';
 import { classNames } from 'primereact/utils';
 import axios from 'axios';
@@ -156,7 +156,7 @@ function App() {
               Loading
             </b>
           </p>
-          <FontAwesomeIcon className="fa-spin" icon={faSpinner} size="6x"/>
+          <FontAwesomeIcon className="fa-spin" icon={faCircleNotch} size="6x"/>
         </div>
       )} />
       <ScrollTop />
