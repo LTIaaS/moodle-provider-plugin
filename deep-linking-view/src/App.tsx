@@ -10,6 +10,7 @@ import { classNames } from 'primereact/utils';
 import axios from 'axios';
 import { Dialog } from 'primereact/dialog';
 import { ScrollTop } from 'primereact/scrolltop';
+import { Skeleton } from 'primereact/skeleton';
 
 interface Course {
   url : string,
@@ -20,17 +21,35 @@ interface Course {
   type: string, //COURSE | MODULE
   depth : number,
   id : number,
-  children : Course[]
+  isSkeleton: boolean | null
 }
+
+const skeletonData: Course[] = [
+  //@ts-ignore
+  {isSkeleton: true}, {isSkeleton: true}, {isSkeleton: true}
+]
 
 function App() {
 
-  const [data, setData] = React.useState<Course[]>([]);
+  const [data, setData] = React.useState<Course[]>(skeletonData);
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
-    console.log(jdata)
-    setData(jdata)
+    // get the deep-linking content items
+    axios.get('deeplinking.php')
+      .then(response => {
+        // body.append
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error(error);
+        setLoading(false);
+      });
+
+    setTimeout(() => {
+      //@ts-ignore
+      setData(jdata);
+    }, 1000);
   }, [])
 
   const launch = (url: string) => {
@@ -70,10 +89,10 @@ function App() {
     }
   }
 
-  const itemTemplate = (item: Course, index: any): ReactNode => {
+  const itemTemplate = (item: Course): ReactNode => {
     return (
       <div className="col-12" key={item.id}>
-        <div className={classNames('flex flex-column sm:flex-row sm:align-items-start p-4 gap-4', { 'border-top-1 surface-border': index !== 0 })}>
+        <div className={classNames('flex flex-column sm:flex-row sm:align-items-start p-4 gap-4', 'border-top-1 surface-border')}>
           {getImage(item)}
           <div className="flex flex-column sm:flex-row justify-content-between align-items-center sm:align-items-start flex-1 gap-4">
             <div className="flex flex-column align-items-center sm:align-items-start gap-1">
@@ -94,10 +113,41 @@ function App() {
     );
   };
 
+  const listItemSkeleton = (item: Course) => {
+    return (
+      <div className="col-12" key={item.id}>
+        <div className={classNames('flex flex-column xl:flex-row xl:align-items-start p-4 gap-4', 'border-top-1 surface-border')}>
+          <Skeleton className="w-9 sm:w-16rem xl:w-10rem shadow-2 h-6rem block xl:block mx-auto border-round" />
+          <div className="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+            <div className="flex flex-column align-items-center sm:align-items-start gap-3">
+              <Skeleton className="w-8rem border-round h-2rem" />
+              <Skeleton className="w-6rem border-round h-1rem" />
+              <div className="flex align-items-center gap-3">
+                <Skeleton className="w-3rem border-round h-1rem" />
+              </div>
+            </div>
+            <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
+              <Skeleton className="w-4rem border-round h-2rem" />
+              <Skeleton shape="circle" className="w-3rem h-3rem" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const getItem = (item: Course, layout: any) => {
+    if(item?.isSkeleton) {
+      return listItemSkeleton(item);
+    } else {
+      return itemTemplate(item);
+    }
+  };
+
   return (
     <div className="App p-4">
       <div className="card shadow-2 block xl:block mx-auto border-round">
-        <DataView value={data} itemTemplate={itemTemplate} layout={"list"} />
+        <DataView value={data} itemTemplate={getItem} layout={"list"} />
       </div>
       <Dialog header="Loading" visible={loading} onHide={() => {}} content={({ hide }) => (
         <div className='p-3' style={{borderRadius: '12px', backgroundColor: "white"}}>
