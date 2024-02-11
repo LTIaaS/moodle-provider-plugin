@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react';
 import './App.css';
 import { Button } from "primereact/button";
-import jdata from './data.json';
 import { DataView } from 'primereact/dataview';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChalkboard, faGraduationCap, faCircleNotch } from '@fortawesome/free-solid-svg-icons'
@@ -11,12 +10,14 @@ import axios from 'axios';
 import { Dialog } from 'primereact/dialog';
 import { ScrollTop } from 'primereact/scrolltop';
 import { Skeleton } from 'primereact/skeleton';
+import { Toast } from 'primereact/toast';
+import { error } from 'console';
 
 interface Course {
   url : string,
   name : string,
   description : string,
-  parent : number,
+  //parent : number,
   icon: string,
   type: string, //COURSE | MODULE
   depth : number,
@@ -33,35 +34,73 @@ function App() {
 
   const [data, setData] = React.useState<Course[]>(skeletonData);
   const [loading, setLoading] = React.useState(false);
+  const toast = React.useRef<Toast>(null);
 
   React.useEffect(() => {
+    // get the LTIK
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const ltik = params.get('ltik');
+
     // get the deep-linking content items
-    axios.get('deeplinking.php')
+    axios.get(`../deeplinking.php?ltik=${ltik}`)
       .then(response => {
-        // body.append
-        setLoading(false);
+        if(response.status === 200) {
+          setData(response.data as Course[]);
+        } else {
+          toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: 'Unable to get data from server. Please refresh page and try again.' });
+        }
       })
       .catch(error => {
+        toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: 'Unable to get data from server. Please refresh page and try again.' });
         console.error(error);
-        setLoading(false);
       });
-
-    setTimeout(() => {
-      //@ts-ignore
-      setData(jdata);
-    }, 1000);
   }, [])
 
-  const launch = (url: string) => {
+  const launch = (item: Course) => {
     setLoading(true);
-    console.log(url);
-    axios.get('https://jsonplaceholder.typicode.com/posts')
+    // get the LTIK
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const ltik = params.get('ltik');
+
+    let contentItem: any = {
+      type: "ltiResourceLink",
+      url: item.url,
+      title: item.name
+    };
+    // add icon if it exists
+    if(item.icon.length > 0) {
+      contentItem = {...contentItem,
+        icon: { 
+          url: "https://lti.example.com/image.jpg", 
+          width: 100, 
+          height: 100 
+        }, 
+        thumbnail: { 
+          url: "https://lti.example.com/thumb.jpg", 
+          width: 90, 
+          height: 90 
+        }
+      }
+    }
+
+    axios.post(`../deeplinkingform.php?ltik=${ltik}`,contentItem)
       .then(response => {
-        // body.append
+        if(response.status === 200) {
+          if(response.data.err) {
+            toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: response.data.err });
+          } else {
+            document.body.append(response.data.form);
+          }
+        } else {
+          toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: 'Unable to get data from server. Please try again.' });
+        }
         setLoading(false);
       })
       .catch(error => {
         console.error(error);
+        toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: 'Unable to get data from server. Please try again.' });
         setLoading(false);
       });
   }
@@ -81,11 +120,11 @@ function App() {
 
   const getImage = (item: Course) => {
     if(item.icon.length > 0) {
-      return <img onClick={() => launch(item.url)} style={{cursor: "pointer"}} className="w-9 sm:w-10rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={item.icon} alt={item.name} />
+      return <img onClick={() => launch(item)} style={{cursor: "pointer"}} className="w-9 sm:w-10rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" src={item.icon} alt={item.name} />
     } else if(item.type === "COURSE") {
-      return <FontAwesomeIcon onClick={() => launch(item.url)} style={{cursor: "pointer"}} className="w-9 sm:w-10rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" icon={faGraduationCap} size="8x" />
+      return <FontAwesomeIcon onClick={() => launch(item)} style={{cursor: "pointer"}} className="w-9 sm:w-10rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" icon={faGraduationCap} size="8x" />
     } else {
-      return <FontAwesomeIcon onClick={() => launch(item.url)} style={{cursor: "pointer"}} className="w-9 sm:w-10rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" icon={faChalkboard} size="8x" />
+      return <FontAwesomeIcon onClick={() => launch(item)} style={{cursor: "pointer"}} className="w-9 sm:w-10rem xl:w-10rem shadow-2 block xl:block mx-auto border-round" icon={faChalkboard} size="8x" />
     }
   }
 
@@ -105,7 +144,7 @@ function App() {
               </div>
           </div>
             <div className="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
-              <Button icon="pi pi-shopping-cart" className="p-button-rounded" disabled={item.url.length === 0} onClick={() => launch(item.url)}>Select</Button>
+              <Button icon="pi pi-shopping-cart" className="p-button-rounded" disabled={item.url.length === 0} onClick={() => launch(item)}>Select</Button>
             </div>
           </div>
         </div>
@@ -160,6 +199,7 @@ function App() {
         </div>
       )} />
       <ScrollTop />
+      <Toast ref={toast} />
     </div>
   );
 }

@@ -498,6 +498,41 @@ class helper {
       return $result;
     }
 
+     /**
+     * Get deep linking form
+     *
+     * @param object $score Score object.
+     * @since Moodle 3.10
+     */
+    public static function ltiaas_get_deeplinking_form($contentItem, $ltik) {
+        $ltiaas = get_config('enrol_ltiaas', 'ltiaasurl');
+        $api_key = get_config('enrol_ltiaas', 'ltiaasapikey');
+        $url_parts = parse_url($ltiaas);
+        
+        if (!isset($url_parts['path'])) $url_parts['path'] = '';
+        $url_parts['path'] .= '/api/deeplinking/form';
+        $service_url = helper::build_url($url_parts);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $service_url);
+        $customHeaders = array(
+            'Authorization: LTIK-AUTH-V1 Token=' . $ltik . ', Additional=Bearer ' . $api_key,
+            'Content-Type: application/json'
+        );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $customHeaders);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($contentItem));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $result = json_decode($response, true);
+        if (intval($httpcode) != 200) {
+            $result['err'] = $result['details']['message'];
+        }
+        return $result;
+      }
+
 
     /**
      * Builds an URL.

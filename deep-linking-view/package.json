@@ -1,6 +1,7 @@
 {
   "name": "deep-linking-view",
   "version": "0.1.0",
+  "homepage": "/enrol/ltiaas/content-selection/",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
