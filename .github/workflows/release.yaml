@@ -17,10 +17,17 @@ jobs:
       contents: write
     steps:
     - uses: actions/checkout@v3
+    - name: Install Dependencies
+      run: cd deep-linking-view; npm install
+    - name: Compile
+      run: cd deep-linking-view; npm run build
+    - name: Copy Deep Linking View
+      run: cp -R deep-linking-view/build ltiaas/content-selection
     - name: Archive Release
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
+        path: 'ltiaas'
         filename: 'ltiaas.zip'
         exclusions: '*.git*'
     - name: Upload Release
