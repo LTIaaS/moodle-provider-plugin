@@ -27,8 +27,8 @@
 require_once(__DIR__ . '/../../config.php');
 
 $ltik = required_param('ltik', PARAM_TEXT);
-
-$form = \enrol_ltiaas\helper::ltiaas_get_deeplinking_form($_POST, $ltik);
+$content = json_decode(file_get_contents("php://input"), true);
+$form = \enrol_ltiaas\helper::ltiaas_get_deeplinking_form($content, $ltik);
 
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($form);

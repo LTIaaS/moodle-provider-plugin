@@ -85,18 +85,22 @@ function App() {
       }
     }
 
-    axios.post(`../deeplinkingform.php?ltik=${ltik}`,contentItem)
+    axios.post(`../deeplinkingform.php?ltik=${ltik}`,{contentItems: [contentItem]})
       .then(response => {
         if(response.status === 200) {
           if(response.data.err) {
             toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: response.data.err });
           } else {
-            document.body.append(response.data.form);
+            const div = document.createElement("div");
+            div.innerHTML = response.data.form;
+            document.body.append(div);
+            //@ts-ignore
+            document.getElementById("ltiaas_dl").submit();
           }
         } else {
           toast.current?.show({ life: 5000, severity: 'error', summary: 'Error', detail: 'Unable to get data from server. Please try again.' });
+          setLoading(false);
         }
-        setLoading(false);
       })
       .catch(error => {
         console.error(error);

@@ -416,6 +416,7 @@ class helper {
     public static function get_launch_url($toolid) {
         $url = get_config('enrol_ltiaas', 'ltiaasurl');
         $url_parts = parse_url($url);
+        $url_parts['path'] = '/lti/launch';
 
         if (isset($url_parts['query'])) {
             parse_str($url_parts['query'], $params);
@@ -527,8 +528,12 @@ class helper {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         $result = json_decode($response, true);
-        if (intval($httpcode) != 200) {
-            $result['err'] = $result['details']['message'];
+        if (intval($httpcode) != 201) {
+            if(isset($result['details']['message'])) {
+                $result['err'] = $result['details']['message'];
+            } else {
+                $result['err'] = $result['error'];
+            }
         }
         return $result;
       }
