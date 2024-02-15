@@ -11,7 +11,6 @@ import { Dialog } from 'primereact/dialog';
 import { ScrollTop } from 'primereact/scrolltop';
 import { Skeleton } from 'primereact/skeleton';
 import { Toast } from 'primereact/toast';
-import { error } from 'console';
 
 interface Course {
   url : string,
