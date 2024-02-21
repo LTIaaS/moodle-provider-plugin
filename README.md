@@ -10,7 +10,7 @@ Turn your Moodle server into an LTI 1.3 capable Tool Provider. This feature enab
 
 [![LTIAAS - Build LTI-ready apps quickly](./ltiaas-logo-with-slogan-dark.png)](https://ltiaas.com)
 
-This Moodle plugin uses [LTIAAS](https://ltiaas.com) to manage the LTI protocol. To use this plugin, you just first [create a FREE LTIAAS account](https://ltiaas.com/guides/account-setup).
+This Moodle plugin uses [LTIAAS](https://ltiaas.com) to manage the LTI protocol. To use this plugin, you must first [create a FREE LTIAAS account](https://ltiaas.com/guides/account-setup).
 
 ## Install/Settings
 
