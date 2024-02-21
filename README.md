@@ -1,4 +1,4 @@
-# LLTIAAS - enrol_ltiaas Moodle Plugin
+# LTI 1.3 Publish as LTI Advantage Tool Moodle Plugin
 
 Turn your Moodle server into an LTI 1.3 capable Tool Provider. This feature enables the following LTI 1.3 capabilities:
 
