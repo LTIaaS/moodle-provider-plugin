@@ -115,7 +115,7 @@ class tool_provider extends ToolProvider {
      * Performs LTI 1.3 launch.
      * @return void
      */
-    public function launch($ltik, $username) {
+    public function launch($ltik) {
         global $DB, $SESSION, $CFG;
         
         // Making request to Ltiaas to retrieve user launch information.
@@ -135,7 +135,7 @@ class tool_provider extends ToolProvider {
         
         // Set the user data.
         $user = new stdClass();
-        $user->username = $username;
+        $user->username = helper::build_username($idtoken);
 
         if (!empty($userInfo['given_name'])) {
             $user->firstname = $userInfo['given_name'];
@@ -235,17 +235,36 @@ class tool_provider extends ToolProvider {
         // Check if we have recorded this user before.
         if ($userlog = $DB->get_record('enrol_ltiaas_users', ['toolid' => $tool->id, 'userid' => $user->id])) {
             $userlog->lastaccess = time();
+            $userlog->externalid = $userInfo['id'];
             $DB->update_record('enrol_ltiaas_users', $userlog);
+            $enrollment_id = $userlog->id;
         } else {
             // Add the user details so we can use it later when syncing grades and members.
             $userlog = new stdClass();
             $userlog->userid = $user->id;
             $userlog->toolid = $tool->id;
+            $userlog->externalid = $userInfo['id'];
             $userlog->lastgrade = null;
             $userlog->lastaccess = time();
             $userlog->timecreated = time();
-            $DB->insert_record('enrol_ltiaas_users', $userlog);
+            $enrollment_id = $DB->insert_record('enrol_ltiaas_users', $userlog, TRUE);
         }
+
+        // Updating or creating service key record for context
+        $service_key = $idtoken['services']['serviceKey'];
+        if (isset($service_key)) {
+          $context_id = helper::build_context_id($idtoken);
+          if ($service_key_record = $DB->get_record('enrol_ltiaas_servicekeys', ['enrollmentid' => $enrollment_id, 'contextid' => $context_id])) {
+            $service_key_record->servicekey = $service_key;
+            $DB->update_record('enrol_ltiaas_servicekeys', $service_key_record);
+          } else {
+            $service_key_record = new stdClass();
+            $service_key_record->servicekey = $service_key;
+            $service_key_record->enrollmentid = $enrollment_id;
+            $service_key_record->contextid = $context_id;
+            $DB->insert_record('enrol_ltiaas_servicekeys', $service_key_record);
+          }
+        } 
 
         // Finalise the user log in.
         complete_user_login($user);

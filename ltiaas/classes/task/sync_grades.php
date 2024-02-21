@@ -84,10 +84,16 @@ class sync_grades extends \core\task\scheduled_task {
 
                         $usercount = $usercount + 1;
 
+                        // Checking if user has necessary info
+                        if (!$ltiuser->externalid) {
+                            mtrace("Skipping - User '$ltiuser->userid' in the tool '$tool->id' doesn't have necessary information. Please ask user to relaunch tool.");
+                            continue;
+                        }
+
                         // Checking if user still has a valid enrollment
                         if ($tool->enrolperiod && ($ltiuser->timeend && $ltiuser->timeend < time())) {
-                          mtrace("Skipping - User '$ltiuser->userid' in the tool '$tool->id' is no longer enrolled in the course.");
-                          continue;
+                            mtrace("Skipping - User '$ltiuser->userid' in the tool '$tool->id' is no longer enrolled in the course.");
+                            continue;
                         }
 
                         // Need a valid context to continue. PROVIDER LEVEL. CHECKING IF TOOL IS A COURSE OR MODULE. GETS THE GRADE FOR THE WHOLE COURSE AFTER COMPLETION. NEED TO ADD USER ID TO ENROLMENT
@@ -151,41 +157,37 @@ class sync_grades extends \core\task\scheduled_task {
                             continue;
                         }
 
-                        $user = $DB->get_record('user', ['id' => $ltiuser->userid]);
-
-                        $score->grade = $grade;
-                        $score->grademax = $grademax;
-                        $score->tool = $tool->id;
-                        $score->context = $user->username;
-
-                        try {
-                            $response = \enrol_ltiaas\helper::ltiaas_post_score($score);
+                        $score = [
+                            'userId' => $ltiuser->externalid,
+                            'scoreGiven' => $grade,
+                            'scoreMaximum' => $grademax,
+                            'activityProgress' => 'Completed',
+                            'gradingProgress' => 'FullyGraded'
+                        ];
+                        
+                        $service_key_records = helper::get_lti_service_key_records(array('enrollmentid' => $ltiuser->id));
+                        $sucess = 0;
+                        foreach ($service_key_records as $service_key_record) {
+                          $service_key = $service_key_record->servicekey;
+                          try {
+                            $response = \enrol_ltiaas\helper::ltiaas_post_score($score, $service_key);
                             if (isset($response['err'])) {
                               $message = $response['err'];
-                              mtrace("Failed - The grade '$grade' $mtracecontent failed to send. Generated error message: $message");
+                              mtrace("Failed - The grade '$grade' $mtracecontent failed to send for context '$service_key'. Generated error message: $message");
                               continue;
-                            } 
-                            if (sizeof($response['success']) != 0) {
-                              $DB->set_field('enrol_ltiaas_users', 'lastgrade', grade_floatval($grade), array('id' => $ltiuser->id));
-                              mtrace("Success - The grade '$grade' $mtracecontent was sent to one or more contexts.");
-                              $sendcount = $sendcount + 1;
-                              foreach ($response['success'] as $success) {
-                                $context = $success['context'];
-                                mtrace("Success context - The grade '$grade' $mtracecontent was sent to context $context.");
-                              }
-                            } else {
-                              mtrace("Failed - The grade '$grade' $mtracecontent failed to send.");
                             }
-                            foreach ($response['failure'] as $failure) {
-                              $context = $failure['context'];
-                              $message = $failure['message'];
-                              mtrace("Failed context - The grade '$grade' $mtracecontent failed to send to context $context. Generated error message: $message");
-                            }  
-                        } catch (\Exception $e) {
+                            $sucess = $sucess + 1;  
+                          } catch (\Exception $e) {
                             mtrace("Failed - The grade '$grade' $mtracecontent failed to send.");
                             mtrace($e->getMessage());
                             continue;
+                          }
                         }
+                        if ($sucess >= 1) {
+                          $DB->set_field('enrol_ltiaas_users', 'lastgrade', grade_floatval($grade), array('id' => $ltiuser->id));
+                          mtrace("Success - The grade '$grade' $mtracecontent was sent to one or more contexts.");
+                          $sendcount = $sendcount + 1;
+                        }   
                     }
                 }
                 mtrace("Completed - Synced grades for tool '$tool->id' in the course '$tool->courseid'. " .

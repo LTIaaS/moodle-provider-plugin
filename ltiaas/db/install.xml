@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="enrol/ltiaas/db" VERSION="20170113" COMMENT="XMLDB file for Moodle enrol/ltiaas"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
->
+<XMLDB
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PATH="enrol/ltiaas/db" VERSION="20230303" COMMENT="XMLDB file for Moodle enrol/ltiaas" xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
   <TABLES>
     <TABLE NAME="enrol_ltiaas_tools" COMMENT="List of tools provided to the remote system">
       <FIELDS>
@@ -37,6 +35,7 @@
         <FIELD NAME="lastgrade" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="The last grade that was sent"/>
         <FIELD NAME="lastaccess" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The time the user last accessed"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The time the user was created"/>
+        <FIELD NAME="externalid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="External user id"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -44,5 +43,20 @@
         <KEY NAME="toolid" TYPE="foreign" FIELDS="toolid" REFTABLE="enrol_ltiaas_tools" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="enrol_ltiaas_servicekeys" COMMENT="Context service keys">
+			<FIELDS>
+				<FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+				<FIELD NAME="enrollmentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+				<FIELD NAME="servicekey" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="Service key for LTI context"/>
+				<FIELD NAME="contextid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="ID for current context"/>
+			</FIELDS>
+			<KEYS>
+				<KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+				<KEY NAME="enrollmentid" TYPE="foreign" FIELDS="enrollmentid" REFTABLE="enrol_ltiaas_users" REFFIELDS="id"/>
+			</KEYS>
+			<INDEXES>
+				<INDEX NAME="context_enrollment" UNIQUE="true" FIELDS="contextid, enrollmentid"/>
+			</INDEXES>
+		</TABLE>
   </TABLES>
 </XMLDB>

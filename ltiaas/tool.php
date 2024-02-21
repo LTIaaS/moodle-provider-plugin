@@ -26,7 +26,6 @@ require_once(__DIR__ . '/../../config.php');
 
 $toolid = required_param('id', PARAM_INT);
 $ltik = required_param('ltik', PARAM_TEXT);
-$username = required_param('username', PARAM_TEXT);
 
 $PAGE->set_context(context_system::instance());
 $url = new moodle_url('/enrol/ltiaas/tool.php');

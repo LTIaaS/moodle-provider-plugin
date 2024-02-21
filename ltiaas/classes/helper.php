@@ -349,6 +349,27 @@ class helper {
     }
 
     /**
+     * Returns a list of LTI Advantage service key records.
+     *
+     * @param array $params The list of SQL params (eg. array('columnname' => value, 'columnname2' => value)).
+     * @return array of service key records
+     */
+    public static function get_lti_service_key_records($params = array()) {
+        global $DB;
+  
+        $sql = "SELECT els.*
+                  FROM {enrol_ltiaas_servicekeys} els";
+        if ($params) {
+            $where = "WHERE";
+            foreach ($params as $colname => $value) {
+                $sql .= " $where $colname = :$colname";
+                $where = "AND";
+            }
+        }
+        return $DB->get_records_sql($sql, $params);
+      }
+
+    /**
      * Returns the number of LTI tools.
      *
      * @param array $params The list of SQL params (eg. array('columnname' => value, 'columnname2' => value)).
@@ -416,7 +437,8 @@ class helper {
     public static function get_launch_url($toolid) {
         $url = get_config('enrol_ltiaas', 'ltiaasurl');
         $url_parts = parse_url($url);
-        $url_parts['path'] = '/lti/launch';
+        if (!isset($url_parts['path'])) $url_parts['path'] = '';
+        $url_parts['path'] .= '/lti/launch';
 
         if (isset($url_parts['query'])) {
             parse_str($url_parts['query'], $params);
@@ -465,39 +487,116 @@ class helper {
     }
 
     /**
-     * Synchronizes grades
+     * Returns username based on the context.
      *
-     * @param object $score Score object.
+     * @param object $idtoken ID Token.
+     * @return string username
      * @since Moodle 3.10
      */
-    public static function ltiaas_post_score($score) {
-      $ltiaas = get_config('enrol_ltiaas', 'ltiaasurl');
-      $api_key = get_config('enrol_ltiaas', 'ltiaasapikey');
-      $url_parts = parse_url($ltiaas);
-      
-      if (!isset($url_parts['path'])) $url_parts['path'] = '';
-      $url_parts['path'] .= '/api/lineitems/sync';
-      $service_url = helper::build_url($url_parts);
-      $ch = curl_init();
-      curl_setopt($ch, CURLOPT_URL, $service_url);
-      $customHeaders = array(
-        'Authorization: Bearer ' . $api_key,
-        'Content-Type: application/json'
-      );
-      curl_setopt($ch, CURLOPT_HTTPHEADER, $customHeaders);
-      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-      curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($score));
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-      $response = curl_exec($ch);
-      $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-      curl_close($ch);
-      $result = json_decode($response, true);
-      if (intval($httpcode) != 201) {
-        $result['err'] = $result['details']['message'];
-      }
-      return $result;
+    public static function build_username($idtoken) {
+        if (!empty($idtoken['user']['email'])) {
+          return $idtoken['user']['email'];
+        }
+        $iss = $idtoken['platform']['url'];
+        $client_id = $idtoken['platform']['clientId'];
+        $deployment_id = $idtoken['platform']['deploymentId'];
+        $consumer_key = $iss . $client_id . $deployment_id;
+        $user_key = $consumer_key . ':' . $idtoken['user']['id'];
+        $username = 'enrol_lti' . sha1($consumer_key . '::' . $user_key);
+        return $username;
     }
+  
+    /**
+     * Returns context ID based on the course and resource IDs.
+     *
+     * @param object $idtoken ID Token.
+     * @return string username
+     * @since Moodle 3.10
+     */
+    public static function build_context_id($idtoken) {
+        $resource_id = $idtoken['launch']['resource']['id'];
+        $context_id = $idtoken['launch']['context']['id'];
+        if (isset($context_id)) {
+            return $context_id . '::' .$resource_id;
+        }
+        return 'unknowncontext_' . '::' . $resource_id;
+    }
+  
+    /**
+     * Synchronizes grades
+     */
+    public static function ltiaas_post_score($score, $service_key) {
+        $base_url = get_config('enrol_ltiaas', 'ltiaasurl');
+        $api_key = get_config('enrol_ltiaas', 'ltiaasapikey');
+        
+        $lineitems = helper::ltiaas_get_lineitems($base_url, $api_key, $service_key);
+        if (isset($lineitems['err'])) {
+            $result = [];
+            $result['err'] = $lineitems['err'];
+            return $result;
+        }
+        if (sizeof($lineitems) == 0) {
+            $result = [];
+            $result['err'] = 'NOT_LINEITEM_FOUND';
+            return $result;
+        }
+        $lineitem = $lineitems[0]['id'];
+        
+        $url_parts = parse_url($base_url); 
+        if (!isset($url_parts['path'])) $url_parts['path'] = '';
+        $url_parts['path'] .= '/api/lineitems/' . urlencode($lineitem) . '/scores';
+        $scores_url = helper::build_url($url_parts);
+  
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $scores_url);
+        $customHeaders = array(
+            'Authorization: SERVICE-AUTH-V1 ' . $api_key . ':' . $service_key,
+            'Content-Type: application/json'
+        );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $customHeaders);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($score));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $result = json_decode($response, true);
+        if (intval($httpcode) != 201) {
+            $result['err'] = $result['details']['message'];
+        }
+        return $result;
+    }
+
+    /**
+     * Retrieves lineitems
+     */
+    public static function ltiaas_get_lineitems($base_url, $api_key, $service_key) {
+        $url_parts = parse_url($base_url);
+        
+        if (!isset($url_parts['path'])) $url_parts['path'] = '';
+        $url_parts['path'] .= '/api/lineitems';
+        $lineitems_url = helper::build_url($url_parts);
+  
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $lineitems_url);
+        $customHeaders = array(
+            'Authorization: SERVICE-AUTH-V1 ' . $api_key . ':' . $service_key,
+            'Content-Type: application/json'
+        );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $customHeaders);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $result = json_decode($response, true);
+        if (intval($httpcode) != 200) {
+            $result['err'] = $result['details']['message'];
+        }
+        return $result;
+      }
 
      /**
      * Get deep linking form

@@ -70,11 +70,13 @@ class manage_table extends \table_sql {
         $this->define_columns(array(
             'name',
             'description',
+            'launchurl',
             'edit'
         ));
         $this->define_headers(array(
             get_string('name'),
             get_string('description', 'enrol_ltiaas'),
+            get_string('launchurl', 'enrol_ltiaas'),
             get_string('edit')
         ));
         $this->collapsible(false);
@@ -112,6 +114,17 @@ class manage_table extends \table_sql {
     public function col_description($tool) {
       $description = helper::get_description($tool);
       return $description;
+    }
+
+    /**
+     * Generate the launch URL column.
+     *
+     * @param \stdClass $tool instance data.
+     * @return string
+     */
+    public function col_launchurl($tool) {
+        $launch_url = helper::get_launch_url($tool->id);
+        return $launch_url;
     }
 
     /**

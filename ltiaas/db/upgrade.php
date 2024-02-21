@@ -55,7 +55,7 @@ function xmldb_enrol_ltiaas_upgrade($oldversion) {
     // Put any upgrade step following this.
     global $DB;
     $dbman = $DB->get_manager();
-    if ($oldversion < 2021022001) {
+    /*if ($oldversion < 2021022001) {
 
       // Define field tag to be added to enrol_ltiaas_tools.
       $table = new xmldb_table('enrol_ltiaas_tools');
@@ -68,7 +68,7 @@ function xmldb_enrol_ltiaas_upgrade($oldversion) {
 
         // ltiaas savepoint reached.
         upgrade_plugin_savepoint(true, 2021022001, 'enrol', 'ltiaas');
-    }
+    }*/
 
 
     return true;
