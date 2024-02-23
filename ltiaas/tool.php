@@ -57,7 +57,7 @@ if ($tool->status != ENROL_INSTANCE_ENABLED) {
 // Initialize tool provider.
 $toolprovider = new \enrol_ltiaas\tool_provider($toolid);
 // Handle the request.
-$response = $toolprovider->launch($ltik, $username);
+$response = $toolprovider->launch($ltik);
 
 echo $OUTPUT->header();
 if (!$response) echo $OUTPUT->notification($toolprovider->errmessage);

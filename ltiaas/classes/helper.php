@@ -1030,7 +1030,11 @@ class helper {
             //$parent_id = $parent_context->id;
             if($context->contextlevel == CONTEXT_MODULE) {
                 $cm = get_coursemodule_from_id(false, $context->instanceid, 0, false, MUST_EXIST);
-                $iconurl = get_fast_modinfo($parent_context->instanceid)->get_cm($cm->instance)->get_icon_url()->out(false);
+                try {
+                    $iconurl = get_fast_modinfo($parent_context->instanceid)->get_cm($cm->instance)->get_icon_url()->out(false);
+                }catch (\Exception $e) {
+                    $iconurl = "";
+                }
             }
         }
         if($context->contextlevel == CONTEXT_COURSE) {
@@ -1057,7 +1061,18 @@ class helper {
             $response = array_merge($response, $new_tools);
         }
 
-        return $response;
+        // Reverse array, so the first occurrence kept.
+        $response = array_reverse($response);
+        // remove duplicates
+        $result = array_reverse( // Reverse array to the initial order.
+            array_values( // Get rid of string keys (make array indexed again).
+                array_combine( // Create array taking keys from column and values from the base array.
+                    array_column($response, 'url'), 
+                    $response
+                )
+            )
+        );
+        return $result;
 
 
         // Find the parent courses of modules so that the UI can display them hierarhically
