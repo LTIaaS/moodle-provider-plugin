@@ -33,7 +33,7 @@ This plugin is installed in Moodle just like any other plugin:
 
 Once the plugin is isntalled and enabeld, you can add activities to be published for LTI. To do this:
 1. Navigate to a course as an admin/teacher.
-2. Click `More` -> `Published as LTI Advantage tools with LTIAAS`.
+2. Click `More` -> `Published LTI Advantage tools with LTIAAS`.
 3. Click the `Add` button.
 4. Fill out the form.
     1. Choose the whole course or an activity within the course using the `Tool to be published` drop-down.
